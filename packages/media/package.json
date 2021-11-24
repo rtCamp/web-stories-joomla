@@ -1,0 +1,22 @@
+{
+  "name": "@web-stories-wp/media",
+  "private": true,
+  "engines": {
+    "node": ">= 16",
+    "npm": ">= 7.3"
+  },
+  "exports": {
+    "default": "./src/index.js"
+  },
+  "main": "./src/index.js",
+  "type": "module",
+  "sideEffects": false,
+  "dependencies": {
+    "@web-stories-wp/react": "*",
+    "@web-stories-wp/tracking": "*",
+    "@web-stories-wp/units": "*",
+    "mime": "^2.5.2",
+    "prop-types": "^15.7.2"
+  },
+  "devDependencies": {}
+}
