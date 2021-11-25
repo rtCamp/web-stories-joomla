@@ -94,6 +94,21 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
       });
       return data;
     };
+  } else if ('trashStory' === name) {
+    callbacks[name] = async (storyId) => {
+      const { data } = await axios({
+        method: 'POST',
+        url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories/delete',
+        data: {
+          id: storyId,
+        },
+        headers: {
+          Authorization:
+            'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
+        },
+      });
+      return data;
+    };
   } else {
     callbacks[name] = () => Promise.resolve(response);
   }
