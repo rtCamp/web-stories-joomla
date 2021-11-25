@@ -56,10 +56,13 @@ const sharedConfig = {
   mode,
   devtool: !isProduction ? 'source-map' : undefined,
   output: {
-    path: path.resolve(path.resolve(__dirname, '..'), 'js'),
+    path: path.resolve(
+      '/Applications/XAMPP/xamppfiles/htdocs/Web-Stories-Joomla/webstories/media/',
+      'js'
+    ),
     filename: '[name].js',
     chunkFilename: '[name].js?v=[chunkhash]',
-    publicPath: '',
+    publicPath: '../media/com_webstories/js/',
     /**
      * If multiple webpack runtimes (from different compilations) are used on the same webpage,
      * there is a risk of conflicts of on-demand chunks in the global namespace.
@@ -186,7 +189,7 @@ const sharedConfig = {
           {
             loader: 'file-loader',
             options: {
-              outputPath: '/images',
+              outputPath: '../images',
             },
           },
         ],
@@ -239,7 +242,7 @@ const sharedConfig = {
 };
 
 const EDITOR_CHUNK = 'joomla-story-editor';
-const DASHBOARD_CHUNK = 'wp-dashboard';
+const DASHBOARD_CHUNK = 'joomla-dashboard';
 
 // Template for html-webpack-plugin to generate JS/CSS chunk manifests in PHP.
 const templateContent = ({ htmlWebpackPlugin, chunkNames }) => {
@@ -268,7 +271,8 @@ const templateContent = ({ htmlWebpackPlugin, chunkNames }) => {
   // We're only interested in chunks from dynamic imports;
   // ones that are not already in `js` and not primaries.
   const chunks = chunkNames.filter(
-    (chunk) => !js.includes(chunk) && ![EDITOR_CHUNK].includes(chunk)
+    (chunk) =>
+      !js.includes(chunk) && ![DASHBOARD_CHUNK, EDITOR_CHUNK].includes(chunk)
   );
 
   return `<?php
@@ -293,8 +297,8 @@ const templateParameters = (compilation, assets, assetTags, options) => ({
 const editorAndDashboard = {
   ...sharedConfig,
   entry: {
-    [EDITOR_CHUNK]: './packages/joomla-story-editor/playground/index.js',
-    //[DASHBOARD_CHUNK]: './packages/wp-dashboard/src/index.js',
+    [EDITOR_CHUNK]: './packages/joomla-story-editor/src/index.js',
+    [DASHBOARD_CHUNK]: './packages/joomla-dashboard/index.js',
   },
   plugins: [
     ...sharedConfig.plugins.filter(
@@ -308,9 +312,17 @@ const editorAndDashboard = {
     }),
     new HtmlWebpackPlugin({
       filename: `${EDITOR_CHUNK}.chunks.php`,
-      inject: true, // Don't inject default <script> tags, etc.
+      inject: false, // Don't inject default <script> tags, etc.
       minify: false, // PHP not HTML so don't attempt to minify.
       chunks: [EDITOR_CHUNK],
+      templateContent,
+      templateParameters,
+    }),
+    new HtmlWebpackPlugin({
+      filename: `${DASHBOARD_CHUNK}.chunks.php`,
+      inject: false, // Don't inject default <script> tags, etc.
+      minify: false, // PHP not HTML so don't attempt to minify.
+      chunks: [DASHBOARD_CHUNK],
       templateContent,
       templateParameters,
     }),

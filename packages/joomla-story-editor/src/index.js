@@ -21,14 +21,13 @@ import { render } from '@web-stories-wp/react';
 import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
 import styled from 'styled-components';
 import axios from 'axios';
+import { deepMerge } from '@web-stories-wp/design-system';
 
 /**
  * Internal dependencies
  */
 import { HeaderLayout } from './header';
 import defaultConfig from './defaultConfig';
-import deepMerge from './deepMerge';
-import { MediaUpload } from './mediaUpload';
 import { getStoryById, saveStoryById } from './api';
 
 // @todo Instead of 100vh, may be the story editor should define its minimum required height to work properly,
@@ -78,39 +77,6 @@ const initializeWithConfig = () => {
     'getTaxonomyTerm',
     'createTaxonomyTerm',
   ];
-  const getStorySaveData = ({
-    pages,
-    featuredMedia,
-    globalStoryStyles,
-    publisherLogo,
-    autoAdvance,
-    defaultPageDuration,
-    currentStoryStyles,
-    backgroundAudio,
-    content,
-    author,
-    ...rest
-  }) => {
-    return {
-      story_data: {
-        version: 35,
-        pages,
-        autoAdvance,
-        defaultPageDuration,
-        currentStoryStyles,
-        backgroundAudio,
-      },
-      featured_media: featuredMedia.id,
-      style_presets: globalStoryStyles,
-      meta: {
-        web_stories_publisher_logo: publisherLogo?.id,
-      },
-      publisher_logo: publisherLogo,
-      content: content,
-      author: author.id,
-      ...rest,
-    };
-  };
   const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
     let response;
 
@@ -143,31 +109,37 @@ const initializeWithConfig = () => {
     }
 
     if ('saveStoryById' === name) {
-      callbacks[name]= (story) => {
-        return Promise.resolve(saveStoryById(globalconfig,story));
-      }
+      callbacks[name] = (story) => {
+        return Promise.resolve(saveStoryById(globalconfig, story));
+      };
     } else if ('getStoryById' === name) {
-      callbacks[name]= (id) => {
-        return  getStoryById(globalconfig,id);
-      }
-    }else if('getMedia' === name){
-      callbacks[name] = async ({mediaType,pagingNum})=>{
+      callbacks[name] = (id) => {
+        return getStoryById(globalconfig, id);
+      };
+    } else if ('getMedia' === name) {
+      callbacks[name] = async ({ mediaType }) => {
         response = await axios({
           method: 'GET',
-          url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories/'+(mediaType==="" ? 'getall' : mediaType==="image" ? 'getimages' :'getvideos'),
+          url:
+            'http://localhost:88/joomla-cms/api/index.php/v1/webstories/' +
+            (mediaType === ''
+              ? 'getall'
+              : mediaType === 'image'
+              ? 'getimages'
+              : 'getvideos'),
           headers: {
             Authorization:
               'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
           },
         });
         const data = response.data;
-        const headers= {
+        const headers = {
           ...response.headers,
           totalItems: response.headers['x-wp-total'],
           totalPages: response.headers['x-wp-totalpages'],
         };
-        return {data, headers};
-      }
+        return { data, headers };
+      };
     } else {
       callbacks[name] = () => Promise.resolve(response);
     }

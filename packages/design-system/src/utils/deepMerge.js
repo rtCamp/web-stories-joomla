@@ -13,12 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/**
+ * Deep merge objects.
+ *
+ * @param {Object} object object to override.
+ * @param {Object} source Source object.
+ * @return {Object} Merged object.
+ */
+export default function deepMerge(object, source = {}) {
+  Object.entries(source).forEach(([key, value]) => {
+    if (value && 'object' === typeof value && !Array.isArray(value)) {
+      if (!object[key]) {
+        Object.assign(object, { [key]: {} });
+      }
+      deepMerge(object[key], value);
+    } else {
+      Object.assign(object, { [key]: value });
+    }
+  });
 
-export { default as isNullOrUndefinedOrEmptyString } from './isNullOrUndefinedOrEmptyString';
-export { noop } from './noop';
-export { default as addQueryArgs } from './addQueryArgs';
-export { default as labelAccessibilityValidator } from './labelAccessibilityValidator';
-export { default as useLiveRegion } from './useLiveRegion';
-export { default as deepMerge } from './deepMerge';
-export * from './constants';
-export * from './directions';
+  return object;
+}
