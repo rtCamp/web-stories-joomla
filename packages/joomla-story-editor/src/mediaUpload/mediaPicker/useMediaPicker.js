@@ -77,7 +77,7 @@ function useMediaPicker({ onPermissionError, onClose }) {
       data: formData,
       headers: {
         Authorization:
-          'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
+          'Bearer '+config.token,
       },
     }).then((response) => {
       if (response.data !== false) {

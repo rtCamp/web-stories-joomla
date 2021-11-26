@@ -29,7 +29,7 @@ export const saveStoryById = async (config, story) => {
     url: config.api.saveLink,
     headers: {
       Authorization:
-        'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
+        'Bearer '+config.token,
     },
     data: {
       id: storyId,
@@ -56,7 +56,7 @@ export const getStoryById = async (config, id) => {
     url: config.api.getStoryById + '?id=' + id,
     headers: {
       Authorization:
-        'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
+        'Bearer '+config.token,
     },
   });
   return Promise.resolve(data);
