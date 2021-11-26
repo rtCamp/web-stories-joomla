@@ -5,7 +5,7 @@ export const getMedia = async (config,mediaType) =>{
     method: 'GET',
     url:
       'http://localhost:88/joomla-cms/api/index.php/v1/webstories/' +
-      (mediaType === ''
+      (mediaType === '' || mediaType === 'LOCAL_MEDIA_TYPE_ALL'
         ? 'getall'
         : mediaType === 'image'
         ? 'getimages'

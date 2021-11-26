@@ -114,15 +114,11 @@ const defaultConfig = {
   },
   isRTL: false,
   storyId: 1,
-  // @todo https://github.com/google/web-stories-wp/pull/9569#discussion_r739066940
-  dashboardSettingsLink: '',
-  // @todo https://github.com/google/web-stories-wp/pull/9569#discussion_r739065299
-  generalSettingsLink: '',
   cdnURL: 'https://wp.stories.google/static/main/',
   maxUpload: 314572800,
   capabilities: {
     hasUploadMediaAction: true,
-    canManageSettings: true,
+    canManageSettings: false,
   },
   metadata: {
     publisher: '',

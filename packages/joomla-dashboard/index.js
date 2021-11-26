@@ -178,6 +178,7 @@ const config = {
     'http://localhost:88/joomla-cms/administrator/index.php?option=com_webstories&view=storyeditor&create_new=yes',
   api: {},
   apiCallbacks,
+  ...window.dashboardSettings,
 };
 const initialize = (id) => {
   const appElement = document.getElementById(id);
