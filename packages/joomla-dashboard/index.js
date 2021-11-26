@@ -20,6 +20,7 @@
 import Dashboard, { InterfaceSkeleton } from '@web-stories-wp/dashboard';
 import styled from 'styled-components';
 import { render } from '@web-stories-wp/react';
+import { createSolidFromString } from '@web-stories-wp/patterns';
 import axios from 'axios';
 
 /**
@@ -58,7 +59,7 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
         url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories',
         headers: {
           Authorization:
-            'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
+            'Bearer '+config.token,
         },
       });
       return data;
@@ -73,7 +74,7 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
         },
         headers: {
           Authorization:
-            'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
+            'Bearer '+config.token,
         },
       });
       return data;
@@ -89,7 +90,7 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
         },
         headers: {
           Authorization:
-            'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
+            'Bearer '+config.token,
         },
       });
       return data;
@@ -104,12 +105,56 @@ const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
         },
         headers: {
           Authorization:
-            'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
+            'Bearer '+config.token,
         },
       });
       return data;
     };
-  } else {
+  } else if('createStoryFromTemplate' === name){
+    callbacks[name] = async (template)=>{
+      const { createdBy, pages, version, colors } = template;
+      const { getStoryPropsToSave } = await import(
+        /* webpackChunkName: "chunk-getStoryPropsToSave" */ '@web-stories-wp/story-editor'
+      );
+      const storyPropsToSave = await getStoryPropsToSave({
+        story: {
+          status: -1,
+          featuredMedia: {
+            id: 0,
+          },
+        },
+        pages,
+        metadata: {
+          publisher: createdBy,
+        },
+      });
+      const convertedColors = colors.map(({ color }) =>
+        createSolidFromString(color)
+      );
+      const storyData = {
+        pages,
+        version,
+        autoAdvance: true,
+        defaultPageDuration: 7,
+        currentStoryStyles: {
+          colors: convertedColors,
+        },
+      };
+      const { data } = await axios({
+        method:"POST",
+        url:'http://localhost:88/joomla-cms/api/index.php/v1/webstories/create_story_from_template',
+        data: {
+          ...storyPropsToSave,
+          storyData,
+        },
+        headers: {
+          Authorization:
+            'Bearer '+config.token,
+        },
+      });
+      return data;
+    }
+  }else {
     callbacks[name] = () => Promise.resolve(response);
   }
   return callbacks;

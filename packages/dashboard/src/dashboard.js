@@ -53,7 +53,7 @@ function Dashboard({ config, children }) {
         <ThemeProvider theme={activeTheme}>
           <ThemeGlobals.Styles />
           <ModalGlobalStyle />
-          <ConfigProvider config={config}>
+          <ConfigProvider config={_config}>
             <ApiProvider>
               <NavProvider>
                 <RouterProvider>

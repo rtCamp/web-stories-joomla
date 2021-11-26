@@ -20,7 +20,6 @@
 import { render } from '@web-stories-wp/react';
 import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
 import styled from 'styled-components';
-import axios from 'axios';
 import { deepMerge } from '@web-stories-wp/design-system';
 
 /**
@@ -28,7 +27,7 @@ import { deepMerge } from '@web-stories-wp/design-system';
  */
 import { HeaderLayout } from './header';
 import defaultConfig from './defaultConfig';
-import { getStoryById, saveStoryById } from './api';
+import { getMedia, getStoryById, saveStoryById } from './api';
 
 // @todo Instead of 100vh, may be the story editor should define its minimum required height to work properly,
 // and that height should be set with the <StoryEditor> component.
@@ -117,28 +116,8 @@ const initializeWithConfig = () => {
         return getStoryById(globalconfig, id);
       };
     } else if ('getMedia' === name) {
-      callbacks[name] = async ({ mediaType }) => {
-        response = await axios({
-          method: 'GET',
-          url:
-            'http://localhost:88/joomla-cms/api/index.php/v1/webstories/' +
-            (mediaType === ''
-              ? 'getall'
-              : mediaType === 'image'
-              ? 'getimages'
-              : 'getvideos'),
-          headers: {
-            Authorization:
-              'Bearer c2hhMjU2OjIxNTo4YWEzMzIyOTgwYjJmY2YwYjY1NTFiZDJjNTJiN2JjNzhiYzQzZGZlYWY2NjFmOGM4OTVmN2FhOGNlYzJkMGVk',
-          },
-        });
-        const data = response.data;
-        const headers = {
-          ...response.headers,
-          totalItems: response.headers['x-wp-total'],
-          totalPages: response.headers['x-wp-totalpages'],
-        };
-        return { data, headers };
+      callbacks[name] = ({ mediaType }) => {
+        return getMedia(globalconfig,mediaType);
       };
     } else {
       callbacks[name] = () => Promise.resolve(response);
