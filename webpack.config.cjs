@@ -56,10 +56,7 @@ const sharedConfig = {
   mode,
   devtool: !isProduction ? 'source-map' : undefined,
   output: {
-    path: path.resolve(
-      '/Applications/XAMPP/xamppfiles/htdocs/Web-Stories-Joomla/webstories/media/',
-      'js'
-    ),
+    path: path.resolve(process.cwd(), 'assets', 'js'),
     filename: '[name].js',
     chunkFilename: '[name].js?v=[chunkhash]',
     publicPath: '../media/com_webstories/js/',

@@ -2,7 +2,7 @@
 .idea/
 .vscode/
 .DS_Store
-node_modules/
+node_modules
 /assets
 /packages/migration/src/module.js
 /build
