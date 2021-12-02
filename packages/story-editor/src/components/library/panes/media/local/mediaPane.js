@@ -295,13 +295,14 @@ function MediaPane(props) {
   );
 
   const renderUploadButtonIcon = useCallback(
-    (open) => (
+    (open,{...rest}) => (
       <Button
         variant={BUTTON_VARIANTS.SQUARE}
         type={BUTTON_TYPES.SECONDARY}
         size={BUTTON_SIZES.SMALL}
         onClick={open}
         aria-label={__('Upload', 'web-stories')}
+        {...rest}
       >
         <Icons.ArrowCloud />
       </Button>

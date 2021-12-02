@@ -46,6 +46,7 @@ export const saveStoryById = async (config, story) => {
         .slice(0, 19)
         .replace('T', ' '),
       published: 1,
+      ...storySaveData,
     },
   });
   return data;

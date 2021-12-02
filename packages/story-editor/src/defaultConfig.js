@@ -112,10 +112,7 @@ const defaultConfig = {
   storyId: 1,
   cdnURL: 'https://wp.stories.google/static/main/',
   maxUpload: 314572800,
-  capabilities: {
-    hasUploadMediaAction: false,
-    canManageSettings: false,
-  },
+  capabilities: {},
   metadata: {
     publisher: '',
   },

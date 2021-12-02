@@ -12,10 +12,11 @@
     "type": "module",
     "dependencies": {
         "@testing-library/react-hooks": "^7.0.2",
+        "@web-stories-wp/dashboard": "*",
         "@web-stories-wp/design-system": "*",
         "@web-stories-wp/i18n":"*",
+        "@web-stories-wp/patterns":"*",
         "@web-stories-wp/react": "*",
-        "@web-stories-wp/dashboard": "*",
         "@web-stories-wp/tracking": "*",
         "axios": "^0.24.0",
         "prop-types": "^15.7.2",

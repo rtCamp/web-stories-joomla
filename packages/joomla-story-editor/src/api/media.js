@@ -4,7 +4,7 @@ export const getMedia = async (config,mediaType) =>{
   let response = await axios({
     method: 'GET',
     url:
-      'http://localhost:88/joomla-cms/api/index.php/v1/webstories/' +
+      '../api/index.php/v1/webstories/' +
       (mediaType === '' || mediaType === 'LOCAL_MEDIA_TYPE_ALL'
         ? 'getall'
         : mediaType === 'image'
@@ -26,7 +26,7 @@ export const getMedia = async (config,mediaType) =>{
 export const saveMedia = async (config,formData) =>{
     let response = await axios({
         method: 'POST',
-        url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories/saveimage',
+        url: '../api/index.php/v1/webstories/saveimage',
         data: formData,
         headers: {
           Authorization:

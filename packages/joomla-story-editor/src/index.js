@@ -21,13 +21,16 @@ import { render } from '@web-stories-wp/react';
 import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
 import styled from 'styled-components';
 import { deepMerge } from '@web-stories-wp/design-system';
+import { __ } from '@web-stories-wp/i18n';
+import axios from 'axios';
 
 /**
  * Internal dependencies
  */
-import { HeaderLayout } from './header';
-import defaultConfig from './defaultConfig';
+import { HeaderLayout } from './components/header';
 import { getMedia, getStoryById, saveStoryById } from './api';
+import MediaUpload from './components/mediaUpload';
+import DocumentPane from './components/documentPane';
 
 // @todo Instead of 100vh, may be the story editor should define its minimum required height to work properly,
 // and that height should be set with the <StoryEditor> component.
@@ -41,7 +44,12 @@ function initialize(id, config) {
   render(
     <AppContainer>
       <StoryEditor config={config}>
-        <InterfaceSkeleton header={<HeaderLayout />} />
+        <InterfaceSkeleton header={<HeaderLayout />}inspectorTabs={{
+          document: {
+            title: __('Document', 'web-stories'),
+            Pane: DocumentPane,
+          },
+        }} />
       </StoryEditor>
     </AppContainer>,
     appElement
@@ -88,9 +96,6 @@ const initializeWithConfig = () => {
         textStyles: [],
       },
       date: '2021-10-26T12:38:38', // Publishing field breaks if date is not provided.
-      capabalities: {
-        hasUploadMediaAction: true,
-      },
     };
 
     switch (name) {
@@ -103,6 +108,13 @@ const initializeWithConfig = () => {
       case 'getPublisherLogos':
         response = [{ url: '' }];
         break;
+      case 'addPublishedLogo':
+        response = [{
+          active:true,
+          id:123,
+          title:'sometitle.jpeg',
+          url:''
+        }]
       default:
         response = {};
     }
@@ -119,7 +131,20 @@ const initializeWithConfig = () => {
       callbacks[name] = ({ mediaType }) => {
         return getMedia(globalconfig,mediaType);
       };
-    } else {
+    }else if ('getAuthors' === name) {
+      callbacks[name] = async () => {
+        const { data } = await axios({
+          method: 'GET',
+          url: '../api/index.php/v1/webstories/users',
+          headers: {
+            Authorization:
+              'Bearer '+globalconfig.token,
+          },
+        });
+        return Promise.resolve(data);
+      };
+    } 
+    else {
       callbacks[name] = () => Promise.resolve(response);
     }
 
@@ -128,10 +153,10 @@ const initializeWithConfig = () => {
 
   const config = {
     apiCallbacks,
+    MediaUpload,
+    ...globalconfig
   };
-  const _config = deepMerge(defaultConfig, config);
-  const finalConfig = deepMerge(_config, globalconfig);
-  initialize('web-stories-editor', finalConfig);
+  initialize('web-stories-editor', config);
 };
 
 if ('loading' === document.readyState) {

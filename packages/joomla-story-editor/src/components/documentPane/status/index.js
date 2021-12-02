@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
 
-/**
- * Internal dependencies
- */
-import { useMediaPicker } from './mediaPicker';
-
-function MediaUpload({ render, ...rest }) {
-  const open = useMediaPicker(rest);
-  const attributes={
-    'data-bs-toggle':'modal',
-    'data-bs-target':'#mediaModal'
-  };  
-  return render(open,attributes);
-}
-
-MediaUpload.propTypes = {
-  render: PropTypes.func.isRequired,
-  ...useMediaPicker.propTypes,
-};
-
-export default MediaUpload;
+export { default } from './status';

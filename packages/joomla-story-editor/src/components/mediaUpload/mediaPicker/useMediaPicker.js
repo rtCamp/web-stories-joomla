@@ -29,38 +29,20 @@ import axios from 'axios';
  * @param {Function?} props.onPermissionError Callback for when user does not have upload permissions.
  * @return {Function} Callback to open the media picker.
  */
-function useMediaPicker({ onPermissionError, onClose }) {
+function useMediaPicker({ onPermissionError, onClose, title }) {
   const {
     actions: { updateMedia },
   } = useAPI();
   const {
     capabilities: { hasUploadMediaAction },
+    token,
   } = useConfig();
-
-  useEffect(() => {
-    try {
-      // The Uploader.success callback is invoked when a user uploads a file.
-      // This is used to mark files as "uploaded to the story editor"
-      // in case we eventually want to allow filtering such files.
-      // Note: at this point the video has not yet been inserted into the canvas,
-      // it's just in the WP media modal.
-      // Video poster generation for newly added videos is done in <MediaPane>.
-      wp.Uploader.prototype.success = ({ attributes }) => {
-        updateMedia(attributes.id, {
-          web_stories_media_source: 'editor',
-          alt_text: attributes.alt || attributes.title,
-        });
-      };
-    } catch (e) {
-      // Silence.
-    }
-  }, [updateMedia]);
   const embedPreview = useCallback((variablex) => {
-    const divTag = document.getElementById('carousel');
+    const divTag = document.getElementById('mediaCarousel');
     const image = document.createElement('img');
     divTag.innerHTML = '';
-    image.style.maxHeight="200px";
-    image.style.maxWidth="200px";
+    image.style.maxHeight = '200px';
+    image.style.maxWidth = '200px';
     image.src = URL.createObjectURL(variablex.files[0]);
     divTag.appendChild(image);
   }, []);
@@ -73,20 +55,23 @@ function useMediaPicker({ onPermissionError, onClose }) {
     );
     axios({
       method: 'POST',
-      url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories/save_file',
+      url: '../api/index.php/v1/webstories/save_file',
       data: formData,
       headers: {
-        Authorization:
-          'Bearer '+config.token,
+        Authorization: 'Bearer ' + token,
       },
     }).then((response) => {
       if (response.data !== false) {
-        onClose();
+        if(title!=="Select as poster image"){
+          onClose();
+        }
         document.getElementById('close-button').click();
       }
     });
-  }, [onClose]);
+  }, [onClose,token]);
+  const insertPoster = useCallback(()=>{
 
+  });
   const openMediaDialog = useCallback(
     (evt) => {
       trackEvent('open_media_modal');
@@ -99,8 +84,26 @@ function useMediaPicker({ onPermissionError, onClose }) {
         evt.preventDefault();
         return;
       }
-      window.embedPreview = embedPreview;
-      window.submitImages = submitImages;
+      if(title!=="Select as poster image"){
+        window.embedPreview = embedPreview;
+        window.submitImages = submitImages;
+      }else{
+        axios({
+          method: 'GET',
+          url: '../api/index.php/v1/webstories/getimages',
+          headers: {
+            Authorization: 'Bearer ' + token,
+          },
+        }).then(({data})=>{
+          const divTag = document.getElementById('posterCarousel');
+          divTag.innerHTML = '';
+          divTag.className = "form-check";
+          data.map(({id,src})=>{    
+            const element = `<label><input type='radio' name="image"><img src='`+src+`' style='height:200px;width:200px;margin:5px'></label>`;
+            divTag.innerHTML += element;
+          });
+        })
+      }
       evt.preventDefault();
     },
     [submitImages, embedPreview, hasUploadMediaAction, onPermissionError]

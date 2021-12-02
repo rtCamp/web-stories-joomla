@@ -27,160 +27,13 @@ import axios from 'axios';
  * Internal dependencies
  */
 import { GlobalStyle } from './theme';
-
+import deepMerge from './deepMerge';
 const AppContainer = styled.div`
   height: 100vh;
 `;
 
-const apiCallbacksNames = [
-  'createStoryFromTemplate',
-  'duplicateStory',
-  'fetchStories',
-  'getAuthors',
-  'trashStory',
-  'updateStory',
-];
-
-// @todo Callbacks should be optional.
-const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
-  let response;
-
-  switch (name) {
-    case 'getAuthors':
-      response = [];
-      break;
-    default:
-      response = {};
-  }
-  if ('fetchStories' === name) {
-    callbacks[name] = async () => {
-      const { data } = await axios({
-        method: 'GET',
-        url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories',
-        headers: {
-          Authorization:
-            'Bearer '+config.token,
-        },
-      });
-      return data;
-    };
-  } else if ('duplicateStory' === name) {
-    callbacks[name] = async (story) => {
-      const { data } = await axios({
-        method: 'POST',
-        url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories/duplicate',
-        data: {
-          id: story.id,
-        },
-        headers: {
-          Authorization:
-            'Bearer '+config.token,
-        },
-      });
-      return data;
-    };
-  } else if ('updateStory' === name) {
-    callbacks[name] = async (story) => {
-      const { data } = await axios({
-        method: 'POST',
-        url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories/rename',
-        data: {
-          id: story.id,
-          title: story.title?.raw || story.title,
-        },
-        headers: {
-          Authorization:
-            'Bearer '+config.token,
-        },
-      });
-      return data;
-    };
-  } else if ('trashStory' === name) {
-    callbacks[name] = async (storyId) => {
-      const { data } = await axios({
-        method: 'POST',
-        url: 'http://localhost:88/joomla-cms/api/index.php/v1/webstories/delete',
-        data: {
-          id: storyId,
-        },
-        headers: {
-          Authorization:
-            'Bearer '+config.token,
-        },
-      });
-      return data;
-    };
-  } else if('createStoryFromTemplate' === name){
-    callbacks[name] = async (template)=>{
-      const { createdBy, pages, version, colors } = template;
-      const { getStoryPropsToSave } = await import(
-        /* webpackChunkName: "chunk-getStoryPropsToSave" */ '@web-stories-wp/story-editor'
-      );
-      const storyPropsToSave = await getStoryPropsToSave({
-        story: {
-          status: -1,
-          featuredMedia: {
-            id: 0,
-          },
-        },
-        pages,
-        metadata: {
-          publisher: createdBy,
-        },
-      });
-      const convertedColors = colors.map(({ color }) =>
-        createSolidFromString(color)
-      );
-      const storyData = {
-        pages,
-        version,
-        autoAdvance: true,
-        defaultPageDuration: 7,
-        currentStoryStyles: {
-          colors: convertedColors,
-        },
-      };
-      const { data } = await axios({
-        method:"POST",
-        url:'http://localhost:88/joomla-cms/api/index.php/v1/webstories/create_story_from_template',
-        data: {
-          ...storyPropsToSave,
-          storyData,
-        },
-        headers: {
-          Authorization:
-            'Bearer '+config.token,
-        },
-      });
-      return data;
-    }
-  }else {
-    callbacks[name] = () => Promise.resolve(response);
-  }
-  return callbacks;
-}, {});
-
 // @todo Cleanup config and use a default configuration inside core dashboard package.
-const config = {
-  userId: 1,
-  flags: {
-    enableSVG: false,
-    enablePostLocking: false,
-    archivePageCustomization: true,
-    enableBetterCaptions: true,
-    enableInProgressTemplateActions: false,
-  },
-  capabilities: {
-    canManageSettings: true,
-    canUploadFiles: true,
-  },
-  newStoryURL:
-    'http://localhost:88/joomla-cms/administrator/index.php?option=com_webstories&view=storyeditor&create_new=yes',
-  api: {},
-  apiCallbacks,
-  ...window.dashboardSettings,
-};
-const initialize = (id) => {
+const initialize = (id, config) => {
   const appElement = document.getElementById(id);
   render(
     <AppContainer>
@@ -193,7 +46,134 @@ const initialize = (id) => {
   );
 };
 const initializeWithConfig = () => {
-  initialize('web-stories-dashboard');
+  const apiCallbacksNames = [
+    'createStoryFromTemplate',
+    'duplicateStory',
+    'fetchStories',
+    'getAuthors',
+    'trashStory',
+    'updateStory',
+  ];
+  const globalConfig = window.dashboardSettings.config;
+  // @todo Callbacks should be optional.
+  const apiCallbacks = apiCallbacksNames.reduce((callbacks, name) => {
+    let response;
+
+    switch (name) {
+      case 'getAuthors':
+        response = [];
+        break;
+      default:
+        response = {};
+    }
+    if ('fetchStories' === name) {
+      callbacks[name] = async () => {
+        const { data } = await axios({
+          method: 'GET',
+          url: globalConfig.api.fetchStories,
+          headers: {
+            Authorization: 'Bearer ' + globalConfig.token,
+          },
+        });
+        return data;
+      };
+    } else if ('duplicateStory' === name) {
+      callbacks[name] = async (story) => {
+        const { data } = await axios({
+          method: 'POST',
+          url: globalConfig.api.duplicateStory,
+          data: {
+            id: story.id,
+            currentUserId: globalConfig.userId
+          },
+          headers: {
+            Authorization: 'Bearer ' + globalConfig.token,
+          },
+        });
+        return data;
+      };
+    } else if ('updateStory' === name) {
+      callbacks[name] = async (story) => {
+        const { data } = await axios({
+          method: 'POST',
+          url: globalConfig.api.updateStory,
+          data: {
+            id: story.id,
+            title: story.title?.raw || story.title,
+          },
+          headers: {
+            Authorization: 'Bearer ' + globalConfig.token,
+          },
+        });
+        return data;
+      };
+    } else if ('trashStory' === name) {
+      callbacks[name] = async (storyId) => {
+        const { data } = await axios({
+          method: 'POST',
+          url: globalConfig.api.trashStory,
+          data: {
+            id: storyId,
+          },
+          headers: {
+            Authorization: 'Bearer ' + globalConfig.token,
+          },
+        });
+        return data;
+      };
+    } else if ('createStoryFromTemplate' === name) {
+      callbacks[name] = async (template) => {
+        const { createdBy, pages, version, colors } = template;
+        const { getStoryPropsToSave } = await import(
+          /* webpackChunkName: "chunk-getStoryPropsToSave" */ '@web-stories-wp/story-editor'
+        );
+        const storyPropsToSave = await getStoryPropsToSave({
+          story: {
+            status: -1,
+            featuredMedia: {
+              id: 0,
+            },
+          },
+          pages,
+          metadata: {
+            publisher: createdBy,
+          },
+        });
+        const convertedColors = colors.map(({ color }) =>
+          createSolidFromString(color)
+        );
+        const storyData = {
+          pages,
+          version,
+          autoAdvance: true,
+          defaultPageDuration: 7,
+          currentStoryStyles: {
+            colors: convertedColors,
+          },
+        };
+        const { data } = await axios({
+          method: 'POST',
+          url: globalConfig.api.createStoryFromTemplate,
+          data: {
+            ...storyPropsToSave,
+            storyData,
+          },
+          headers: {
+            Authorization: 'Bearer ' + globalConfig.token,
+          },
+        });
+        return data;
+      };
+    } else {
+      callbacks[name] = () => Promise.resolve(response);
+    }
+    return callbacks;
+  }, {});
+  const config = {
+    apiCallbacks,
+  };
+  const finalConfig = deepMerge(config, globalConfig);
+  initialize('web-stories-dashboard', finalConfig);
 };
 if ('loading' === document.readyState) {
   document.addEventListener('DOMContentLoaded', initializeWithConfig);
