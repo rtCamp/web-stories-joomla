@@ -1,7 +1,24 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * External dependencies
+ */
 import axios from 'axios';
-export const getMedia = async (config,mediaType) =>{
-  console.log('reached here');
-  let response = await axios({
+export const getMedia = async (config, mediaType) => {
+  const response = await axios({
     method: 'GET',
     url:
       '../api/index.php/v1/webstories/' +
@@ -11,8 +28,7 @@ export const getMedia = async (config,mediaType) =>{
         ? 'getimages'
         : 'getvideos'),
     headers: {
-      Authorization:
-        'Bearer '+config.token,
+      Authorization: 'Bearer ' + config.token,
     },
   });
   const data = response.data;
@@ -22,16 +38,15 @@ export const getMedia = async (config,mediaType) =>{
     totalPages: response.headers['x-wp-totalpages'],
   };
   return { data, headers };
-}
-export const saveMedia = async (config,formData) =>{
-    let response = await axios({
-        method: 'POST',
-        url: '../api/index.php/v1/webstories/saveimage',
-        data: formData,
-        headers: {
-          Authorization:
-            'Bearer '+config.token,
-        },
-      });
-    return response;
-}
+};
+export const saveMedia = async (config, formData) => {
+  const response = await axios({
+    method: 'POST',
+    url: '../api/index.php/v1/webstories/saveimage',
+    data: formData,
+    headers: {
+      Authorization: 'Bearer ' + config.token,
+    },
+  });
+  return response;
+};

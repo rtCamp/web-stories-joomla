@@ -17,26 +17,31 @@
 /**
  * External dependencies
  */
-import { useCallback, useEffect } from '@web-stories-wp/react';
+import { useCallback } from '@web-stories-wp/react';
 import { trackEvent } from '@web-stories-wp/tracking';
-import { useConfig, useAPI } from '@web-stories-wp/story-editor';
+import { useConfig, useStory } from '@web-stories-wp/story-editor';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
 /**
  * Custom hook to open the WordPress media modal.
  *
+ * @param {Object} props Props.
+ * @param {Function} props.onClose what to do when media modal closes.
  * @param {Function?} props.onPermissionError Callback for when user does not have upload permissions.
+ * @param {string} props.title Title of the media modal.
  * @return {Function} Callback to open the media picker.
  */
-function useMediaPicker({ onPermissionError, onClose, title }) {
-  const {
-    actions: { updateMedia },
-  } = useAPI();
+function useMediaPicker({ onClose, onPermissionError, title }) {
   const {
     capabilities: { hasUploadMediaAction },
     token,
   } = useConfig();
+  const { updateStory } = useStory(({ actions: { updateStory } }) => {
+    return {
+      updateStory,
+    };
+  });
   const embedPreview = useCallback((variablex) => {
     const divTag = document.getElementById('mediaCarousel');
     const image = document.createElement('img');
@@ -62,20 +67,32 @@ function useMediaPicker({ onPermissionError, onClose, title }) {
       },
     }).then((response) => {
       if (response.data !== false) {
-        if(title!=="Select as poster image"){
+        if (title !== 'Select as poster image') {
           onClose();
         }
         document.getElementById('close-button').click();
       }
     });
-  }, [onClose,token]);
-  const insertPoster = useCallback(()=>{
+  }, [onClose, title, token]);
 
-  });
+  const insertPoster = useCallback(() => {
+    const poster = document.getElementById('posterModal');
+    const src = poster.querySelector("input[name='image']:checked");
+    updateStory({
+      properties: {
+        featuredMedia: {
+          id: src.id,
+          url: src.dataset.src,
+          height: 200,
+          width: 200,
+        },
+      },
+    });
+  }, [updateStory]);
+
   const openMediaDialog = useCallback(
     (evt) => {
       trackEvent('open_media_modal');
-
       // If a user does not have the rights to upload to the media library, do not show the media picker.
       if (!hasUploadMediaAction) {
         if (onPermissionError) {
@@ -84,29 +101,58 @@ function useMediaPicker({ onPermissionError, onClose, title }) {
         evt.preventDefault();
         return;
       }
-      if(title!=="Select as poster image"){
+      let modal;
+      if (
+        title === 'Select as poster image' ||
+        title === 'Select as publisher logo'
+      ) {
+        modal = new bootstrap.Modal(document.getElementById('posterModal'));
+      } else {
+        modal = new bootstrap.Modal(document.getElementById('mediaModal'));
+      }
+      modal.show();
+      if (
+        title !== 'Select as poster image' &&
+        title !== 'Select as publisher logo'
+      ) {
         window.embedPreview = embedPreview;
         window.submitImages = submitImages;
-      }else{
+      } else {
         axios({
           method: 'GET',
           url: '../api/index.php/v1/webstories/getimages',
           headers: {
             Authorization: 'Bearer ' + token,
           },
-        }).then(({data})=>{
+        }).then(({ data }) => {
           const divTag = document.getElementById('posterCarousel');
           divTag.innerHTML = '';
-          divTag.className = "form-check";
-          data.map(({id,src})=>{    
-            const element = `<label><input type='radio' name="image"><img src='`+src+`' style='height:200px;width:200px;margin:5px'></label>`;
+          divTag.className = 'form-check';
+          data.map(({ src }) => {
+            const element =
+              `<label><input type='radio'  data-src="` +
+              src +
+              `" name="image" id=` +
+              src +
+              `><img src='` +
+              src +
+              `'" style='height:200px;width:200px;margin:5px'></label>`;
             divTag.innerHTML += element;
           });
-        })
+        });
+        window.insertPoster = insertPoster;
       }
       evt.preventDefault();
     },
-    [submitImages, embedPreview, hasUploadMediaAction, onPermissionError]
+    [
+      hasUploadMediaAction,
+      title,
+      onPermissionError,
+      embedPreview,
+      submitImages,
+      token,
+      insertPoster,
+    ]
   );
 
   return openMediaDialog;

@@ -92,14 +92,13 @@ function MediaInput(
     type = 'image',
     value,
     cropParams,
-    ...rest
   },
   forwardedRef
 ) {
   const { MediaUpload } = useConfig();
 
   const renderMediaIcon = useCallback(
-    (open,{...rest}) => {
+    (open) => {
       // Options available for the media input menu.
       const availableMenuOptions = [
         { label: __('Edit', 'web-stories'), value: 'edit' },
@@ -123,11 +122,10 @@ function MediaInput(
           dropdownOptions={dropdownOptions}
           forwardedRef={forwardedRef}
           value={value}
-          {...rest}
         />
       );
     },
-    [onChange, menuOptions, forwardedRef, value, rest]
+    [onChange, menuOptions, forwardedRef, value]
   );
 
   return (
@@ -157,7 +155,6 @@ MediaInputField.propTypes = {
 };
 
 MediaInput.propTypes = {
-  className: PropTypes.string,
   buttonInsertText: PropTypes.string,
   menuOptions: PropTypes.array,
   onChange: PropTypes.func.isRequired,

@@ -25,19 +25,7 @@ import { useMediaPicker } from './mediaPicker';
 
 function MediaUpload({ render, ...rest }) {
   const open = useMediaPicker(rest);
-  let attributes;
-  if(rest.title==="Select as poster image"){
-    attributes={
-      'data-bs-toggle':'modal',
-      'data-bs-target':'#posterModal'
-    };
-  }else{
-    attributes={
-      'data-bs-toggle':'modal',
-      'data-bs-target':'#mediaModal'
-    };
-  }  
-  return render(open,attributes);
+  return render(open);
 }
 
 MediaUpload.propTypes = {

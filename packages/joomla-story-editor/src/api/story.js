@@ -28,15 +28,14 @@ export const saveStoryById = async (config, story) => {
     method: 'POST',
     url: config.api.saveLink,
     headers: {
-      Authorization:
-        'Bearer '+config.token,
+      Authorization: 'Bearer ' + config.token,
     },
     data: {
       id: storyId,
       markup: story?.content,
       post_content_filtered: storySaveData?.story_data,
       title: story?.title,
-      created_by: 'wordpress',
+      created_by: config.userId,
       post_date: new Date(story?.date)
         .toISOString()
         .slice(0, 19)
@@ -56,8 +55,7 @@ export const getStoryById = async (config, id) => {
     method: 'GET',
     url: config.api.getStoryById + '?id=' + id,
     headers: {
-      Authorization:
-        'Bearer '+config.token,
+      Authorization: 'Bearer ' + config.token,
     },
   });
   return Promise.resolve(data);

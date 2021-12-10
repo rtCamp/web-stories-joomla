@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
- import {
+import {
   useState,
   useEffect,
   useCallback,
@@ -257,8 +257,12 @@ function PublishPanel() {
     );
   };
 
-  const renderUploadButton = (open) => (
-    <Datalist.Option onClick={open} aria-label={__('Add new', 'web-stories')}>
+  const renderUploadButton = (open, { ...rest }) => (
+    <Datalist.Option
+      onClick={open}
+      {...rest}
+      aria-label={__('Add new', 'web-stories')}
+    >
       <Icons.ArrowCloud height={32} width={32} />
       <Text as="span" size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.X_SMALL}>
         {__('Add new', 'web-stories')}
