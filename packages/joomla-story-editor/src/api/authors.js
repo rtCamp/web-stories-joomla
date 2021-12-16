@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 /**
- * Deep merge objects.
- *
- * @param {Object} object object to override.
- * @param {Object} source Source object.
- * @return {Object} Merged object.
+ * External dependencies
  */
-export default function deepMerge(object, source = {}) {
-  Object.entries(source).forEach(([key, value]) => {
-    if (value && 'object' === typeof value && !Array.isArray(value)) {
-      if (!object[key]) {
-        Object.assign(object, { [key]: {} });
-      }
-      deepMerge(object[key], value);
-    } else {
-      Object.assign(object, { [key]: value });
-    }
-  });
+import axios from 'axios';
 
-  return object;
-}
+export const getAuthors = async (globalconfig) => {
+  const { data } = await axios({
+    method: 'GET',
+    url: '../api/index.php/v1/webstories/users',
+    headers: {
+      Authorization: 'Bearer ' + globalconfig.token,
+    },
+  });
+  return Promise.resolve(data);
+};

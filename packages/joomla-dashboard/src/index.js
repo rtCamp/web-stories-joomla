@@ -17,47 +17,34 @@
 /**
  * External dependencies
  */
+import Dashboard, { InterfaceSkeleton } from '@web-stories-wp/dashboard';
 import { render } from '@web-stories-wp/react';
-import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
-import { __ } from '@web-stories-wp/i18n';
 
 /**
  * Internal dependencies
  */
-import { HeaderLayout } from './components/header';
-import getApiCallbacks from './api/utils/getApiCallbacks';
-import MediaUpload from './components/mediaUpload';
-import DocumentPane from './components/documentPane';
-
-// @todo None of these should be required by default, https://github.com/google/web-stories-wp/pull/9569#discussion_r738458801
-function initialize(id, config) {
+import { GlobalStyle } from '../theme';
+import getApiCallbacks from './api/getApiCallbacks';
+// @todo Cleanup config and use a default configuration inside core dashboard package.
+const initialize = (id, config) => {
   const appElement = document.getElementById(id);
   render(
-    <StoryEditor config={config}>
-      <InterfaceSkeleton
-        header={<HeaderLayout />}
-        inspectorTabs={{
-          document: {
-            title: __('Document', 'web-stories'),
-            Pane: DocumentPane,
-          },
-        }}
-      />
-    </StoryEditor>,
+    <Dashboard config={config}>
+      <GlobalStyle />
+      <InterfaceSkeleton />
+    </Dashboard>,
     appElement
   );
-}
-const initializeWithConfig = () => {
-  const globalconfig = window.webStoriesEditorSettings.config;
-
-  const config = {
-    apiCallbacks: getApiCallbacks(globalconfig),
-    MediaUpload,
-    ...globalconfig,
-  };
-  initialize('web-stories-editor', config);
 };
-
+const initializeWithConfig = () => {
+  const globalConfig = window.dashboardSettings.config;
+  // @todo Callbacks should be optional.
+  const config = {
+    apiCallbacks: getApiCallbacks(globalConfig),
+    ...globalConfig,
+  };
+  initialize('web-stories-dashboard', config);
+};
 if ('loading' === document.readyState) {
   document.addEventListener('DOMContentLoaded', initializeWithConfig);
 } else {

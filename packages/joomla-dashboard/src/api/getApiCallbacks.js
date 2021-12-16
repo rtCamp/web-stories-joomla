@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 /**
- * External dependencies
+ * Internal dependencies
  */
-import { useEffect } from '@web-stories-wp/react';
-
-function Preview() {
-  useEffect(() => {
-    const content = window.localStorage.getItem('preview_markup');
-
-    if (content) {
-      document.open();
-      document.write(content);
-      document.close();
-    }
-  }, []);
-
-  return null;
-}
-
-export default Preview;
+import * as apiCallbacks from '.';
+const getApiCallbacks = (config) => {
+  return Object.entries(apiCallbacks).reduce((callbacks, [name, callback]) => {
+    callbacks[name] = callback.bind(null, config);
+    return callbacks;
+  }, {});
+};
+export default getApiCallbacks;

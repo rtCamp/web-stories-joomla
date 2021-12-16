@@ -93,7 +93,6 @@ function Header({
     ),
     view: DASHBOARD_VIEWS.DASHBOARD,
   });
-
   const handleClick = useCallback(
     (filterValue) => {
       filter.set(filterValue);

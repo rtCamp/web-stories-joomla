@@ -54,7 +54,7 @@ const mode = isProduction ? 'production' : 'development';
 
 const sharedConfig = {
   mode,
-  devtool: !isProduction ? 'source-map' : undefined,
+  devtool: undefined,
   output: {
     path: path.resolve(
       '/Applications/XAMPP/xamppfiles/htdocs/Web-Stories-Joomla/webstories/media/',
@@ -307,7 +307,7 @@ const editorAndDashboard = {
   ...sharedConfig,
   entry: {
     [EDITOR_CHUNK]: './packages/joomla-story-editor/src/index.js',
-    [DASHBOARD_CHUNK]: './packages/joomla-dashboard/index.js',
+    [DASHBOARD_CHUNK]: './packages/joomla-dashboard/src/index.js',
   },
   plugins: [
     ...sharedConfig.plugins.filter(

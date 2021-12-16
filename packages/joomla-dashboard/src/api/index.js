@@ -13,22 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * Internal dependencies
- */
-import * as apiCallbacks from '..';
-
-/**
- * Bind config object as the first argument and get all api callbacks used in the core editor only.
- *
- * @param {Object} config Configuration object.
- * @return {Object} api callbacks.
- */
-const getApiCallbacks = (config) => {
-  return Object.entries(apiCallbacks).reduce((callbacks, [name, callback]) => {
-    callbacks[name] = callback.bind(null, config);
-    return callbacks;
-  }, {});
-};
-
-export default getApiCallbacks;
+export * from './story';
