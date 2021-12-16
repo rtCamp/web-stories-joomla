@@ -17,16 +17,10 @@
 /**
  * External dependencies
  */
-import {
-  useState,
-  useEffect,
-  useCallback,
-  forwardRef,
-} from '@web-stories-wp/react';
+import { useState, useEffect, useCallback } from '@web-stories-wp/react';
 import styled from 'styled-components';
 import { __, sprintf, translateToExclusiveList } from '@web-stories-wp/i18n';
 import {
-  Link,
   Text,
   THEME_CONSTANTS,
   Icons,
@@ -99,21 +93,6 @@ const MediaInputWrapper = styled.div`
   height: 160px;
 `;
 
-const DropdownWrapper = styled.div`
-  position: relative;
-  width: 138px;
-  margin-left: 30px;
-  margin-top: 3px;
-`;
-
-const LogoImg = styled.img`
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  max-width: 96px;
-  max-height: 96px;
-`;
-
 function PublishPanel() {
   const {
     state: { users },
@@ -127,8 +106,7 @@ function PublishPanel() {
   const {
     allowedImageMimeTypes,
     allowedImageFileTypes,
-    dashboardSettingsLink,
-    capabilities: { hasUploadMediaAction, canManageSettings },
+    capabilities: { hasUploadMediaAction },
     MediaUpload,
   } = useConfig();
 
@@ -147,20 +125,16 @@ function PublishPanel() {
     })
   );
 
-  const { featuredMedia, publisherLogo, updateStory, capabilities } = useStory(
+  const { featuredMedia, updateStory, capabilities } = useStory(
     ({
       state: {
-        story: {
-          featuredMedia = { id: 0, url: '', height: 0, width: 0 },
-          publisherLogo = { id: 0, url: '', height: 0, width: 0 },
-        },
+        story: { featuredMedia = { id: 0, url: '', height: 0, width: 0 } },
         capabilities,
       },
       actions: { updateStory },
     }) => {
       return {
         featuredMedia,
-        publisherLogo,
         updateStory,
         capabilities,
       };
@@ -231,38 +205,8 @@ function PublishPanel() {
     /* translators: %s: list of allowed file types. */
     __('Please choose only %s as a poster.', 'web-stories')
   );
-
-  const publisherLogoOptionRenderer = forwardRef(
-    ({ option: option, ...rest }, ref) => {
-      if (option.props) {
-        return option;
-      }
-      return (
-        <Datalist.Option value={option.id} ref={ref} {...rest}>
-          <LogoImg src={option.url} alt="" />
-        </Datalist.Option>
-      );
-    }
-  );
-  const activeItemRenderer = () => {
-    const displayText = publisherLogos.length
-      ? __('Select logo', 'web-stories')
-      : __('No logo', 'web-stories');
-    return publisherLogo.id ? (
-      <LogoImg src={publisherLogo.url} alt="" />
-    ) : (
-      <Text as="span" size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.SMALL}>
-        {displayText}
-      </Text>
-    );
-  };
-
-  const renderUploadButton = (open, { ...rest }) => (
-    <Datalist.Option
-      onClick={open}
-      {...rest}
-      aria-label={__('Add new', 'web-stories')}
-    >
+  const renderUploadButton = (open) => (
+    <Datalist.Option onClick={open} aria-label={__('Add new', 'web-stories')}>
       <Icons.ArrowCloud height={32} width={32} />
       <Text as="span" size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.X_SMALL}>
         {__('Add new', 'web-stories')}
@@ -338,45 +282,6 @@ function PublishPanel() {
               <Required />
             </LabelWrapper>
           </MediaInputWrapper>
-          <DropdownWrapper>
-            <MediaWrapper>
-              <Datalist.DropDown
-                options={publisherLogosWithUploadOption}
-                primaryOptions={publisherLogosWithUploadOption}
-                onChange={onPublisherLogoChange}
-                aria-label={__('Publisher Logo', 'web-stories')}
-                renderer={publisherLogoOptionRenderer}
-                activeItemRenderer={activeItemRenderer}
-                selectedId={publisherLogo.id}
-                disabled={!publisherLogosWithUploadOption.length}
-                ref={(node) => {
-                  if (
-                    node &&
-                    highlightLogo?.focus &&
-                    highlightLogo?.showEffect
-                  ) {
-                    node.focus();
-                  }
-                }}
-              />
-            </MediaWrapper>
-            <LabelWrapper>
-              <Label>{__('Publisher Logo', 'web-stories')}</Label>
-              <Row>
-                <Required />
-                {canManageSettings && (
-                  <Link
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    href={dashboardSettingsLink}
-                    size={THEME_CONSTANTS.TYPOGRAPHY.PRESET_SIZES.X_SMALL}
-                  >
-                    {__('Manage', 'web-stories')}
-                  </Link>
-                )}
-              </Row>
-            </LabelWrapper>
-          </DropdownWrapper>
         </HighlightRow>
       </PanelContent>
     </Panel>
