@@ -20,7 +20,7 @@
 import { render } from '@web-stories-wp/react';
 import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
 import { __ } from '@web-stories-wp/i18n';
-
+import styled from 'styled-components';
 /**
  * Internal dependencies
  */
@@ -29,21 +29,26 @@ import getApiCallbacks from './api/utils/getApiCallbacks';
 import MediaUpload from './components/mediaUpload';
 import DocumentPane from './components/documentPane';
 
+const AppContainer = styled.div`
+  height: 100vh;
+`;
 // @todo None of these should be required by default, https://github.com/google/web-stories-wp/pull/9569#discussion_r738458801
 function initialize(id, config) {
   const appElement = document.getElementById(id);
   render(
-    <StoryEditor config={config}>
-      <InterfaceSkeleton
-        header={<HeaderLayout />}
-        inspectorTabs={{
-          document: {
-            title: __('Document', 'web-stories'),
-            Pane: DocumentPane,
-          },
-        }}
-      />
-    </StoryEditor>,
+    <AppContainer>
+      <StoryEditor config={config}>
+        <InterfaceSkeleton
+          header={<HeaderLayout />}
+          inspectorTabs={{
+            document: {
+              title: __('Document', 'web-stories'),
+              Pane: DocumentPane,
+            },
+          }}
+        />
+      </StoryEditor>
+    </AppContainer>,
     appElement
   );
 }
