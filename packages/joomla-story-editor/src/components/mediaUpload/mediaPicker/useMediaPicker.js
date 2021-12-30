@@ -24,6 +24,10 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 
 /**
+ * Internal dependencies
+ */
+import getResourceFromLocalFile from './utils/getResourceFromLocalFile';
+/**
  * Custom hook to open the WordPress media modal.
  *
  * @param {Object} props Props.
@@ -42,6 +46,7 @@ function useMediaPicker({ onClose, onPermissionError, title }) {
       updateStory,
     };
   });
+
   const embedPreview = useCallback((variablex) => {
     const divTag = document.getElementById('mediaCarousel');
     const image = document.createElement('img');
@@ -52,12 +57,16 @@ function useMediaPicker({ onClose, onPermissionError, title }) {
     divTag.appendChild(image);
   }, []);
 
-  const submitImages = useCallback(() => {
+  const submitImages = useCallback(async () => {
     const formData = new FormData();
     formData.append(
-      'image',
+      'media',
       document.getElementById('file-input-button').files[0]
     );
+    const { posterFile } = await getResourceFromLocalFile(
+      document.getElementById('file-input-button').files[0]
+    );
+    formData.append('poster_image', posterFile);
     axios({
       method: 'POST',
       url: '../api/index.php/v1/webstories/save_file',

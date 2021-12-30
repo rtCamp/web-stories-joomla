@@ -17,11 +17,11 @@
  * External dependencies
  */
 import axios from 'axios';
-export const getMedia = async (config, mediaType) => {
+export const getMedia = async (config, { mediaType }) => {
   const response = await axios({
     method: 'GET',
     url:
-      '../api/index.php/v1/webstories/' +
+      config.api.getMedia +
       (mediaType === '' || mediaType === 'LOCAL_MEDIA_TYPE_ALL'
         ? 'getall'
         : mediaType === 'image'
@@ -38,15 +38,4 @@ export const getMedia = async (config, mediaType) => {
     totalPages: response.headers['x-wp-totalpages'],
   };
   return { data, headers };
-};
-export const saveMedia = async (config, formData) => {
-  const response = await axios({
-    method: 'POST',
-    url: '../api/index.php/v1/webstories/saveimage',
-    data: formData,
-    headers: {
-      Authorization: 'Bearer ' + config.token,
-    },
-  });
-  return response;
 };
