@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,5 @@
  * limitations under the License.
  */
 
-/**
- * External dependencies
- */
-import { identity, useContextSelector } from '@web-stories-wp/react';
-/**
- * Internal dependencies
- */
-import Context from './context';
-
-function useFile(selector) {
-  return useContextSelector(Context, selector ?? identity);
-}
-
-export default useFile;
+export { default as getFontCSS } from './getFontCSS';
+export { default as getGoogleFontURL } from './getGoogleFontURL';

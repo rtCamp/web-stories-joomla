@@ -28,6 +28,7 @@ import { HeaderLayout } from './components/header';
 import getApiCallbacks from './api/utils/getApiCallbacks';
 import MediaUpload from './components/mediaUpload';
 import DocumentPane from './components/documentPane';
+import { getFonts } from './api/fonts';
 
 const AppContainer = styled.div`
   height: 100vh;
@@ -56,7 +57,10 @@ const initializeWithConfig = () => {
   const globalconfig = window.webStoriesEditorSettings.config;
 
   const config = {
-    apiCallbacks: getApiCallbacks(globalconfig),
+    apiCallbacks: {
+      ...getApiCallbacks(globalconfig),
+      getFonts,
+    },
     MediaUpload,
     ...globalconfig,
   };
