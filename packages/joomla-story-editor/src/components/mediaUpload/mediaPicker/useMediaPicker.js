@@ -19,9 +19,8 @@
  */
 import { useCallback } from '@web-stories-wp/react';
 import { trackEvent } from '@web-stories-wp/tracking';
-import { useConfig, useStory } from '@web-stories-wp/story-editor';
+import { useConfig, useStory, useAPI } from '@web-stories-wp/story-editor';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 
 /**
  * Internal dependencies
@@ -39,50 +38,40 @@ import getResourceFromLocalFile from './utils/getResourceFromLocalFile';
 function useMediaPicker({ onClose, onPermissionError, title }) {
   const {
     capabilities: { hasUploadMediaAction },
-    token,
   } = useConfig();
   const { updateStory } = useStory(({ actions: { updateStory } }) => {
     return {
       updateStory,
     };
   });
-
-  const embedPreview = useCallback((variablex) => {
+  const {
+    actions: { uploadMedia, getMedia },
+  } = useAPI();
+  const embedPreview = useCallback(async (variablex) => {
     const divTag = document.getElementById('mediaCarousel');
     const image = document.createElement('img');
     divTag.innerHTML = '';
     image.style.maxHeight = '200px';
     image.style.maxWidth = '200px';
-    image.src = URL.createObjectURL(variablex.files[0]);
+    const result = await getResourceFromLocalFile(variablex.files[0]);
+    image.src = URL.createObjectURL(
+      result.posterFile ? result.posterFile : variablex.files[0]
+    );
     divTag.appendChild(image);
   }, []);
 
   const submitImages = useCallback(async () => {
-    const formData = new FormData();
-    formData.append(
-      'media',
-      document.getElementById('file-input-button').files[0]
+    const response = await uploadMedia(
+      document.getElementById('file-input-button').files[0],
+      {}
     );
-    const { posterFile } = await getResourceFromLocalFile(
-      document.getElementById('file-input-button').files[0]
-    );
-    formData.append('poster_image', posterFile);
-    axios({
-      method: 'POST',
-      url: '../api/index.php/v1/webstories/save_file',
-      data: formData,
-      headers: {
-        Authorization: 'Bearer ' + token,
-      },
-    }).then((response) => {
-      if (response.data !== false) {
-        if (title !== 'Select as poster image') {
-          onClose();
-        }
-        document.getElementById('close-button').click();
+    if (response.data !== false) {
+      if (title !== 'Select as poster image') {
+        onClose();
       }
-    });
-  }, [onClose, title, token]);
+      document.getElementById('close-button').click();
+    }
+  }, [onClose, title, uploadMedia]);
 
   const insertPoster = useCallback(() => {
     const poster = document.getElementById('posterModal');
@@ -100,7 +89,7 @@ function useMediaPicker({ onClose, onPermissionError, title }) {
   }, [updateStory]);
 
   const openMediaDialog = useCallback(
-    (evt) => {
+    async (evt) => {
       trackEvent('open_media_modal');
       // If a user does not have the rights to upload to the media library, do not show the media picker.
       if (!hasUploadMediaAction) {
@@ -111,43 +100,31 @@ function useMediaPicker({ onClose, onPermissionError, title }) {
         return;
       }
       let modal;
-      if (
-        title === 'Select as poster image' ||
-        title === 'Select as publisher logo'
-      ) {
+      if (title === 'Select as poster image') {
         modal = new bootstrap.Modal(document.getElementById('posterModal'));
       } else {
         modal = new bootstrap.Modal(document.getElementById('mediaModal'));
       }
       modal.show();
-      if (
-        title !== 'Select as poster image' &&
-        title !== 'Select as publisher logo'
-      ) {
+      if (title !== 'Select as poster image') {
         window.embedPreview = embedPreview;
         window.submitImages = submitImages;
       } else {
-        axios({
-          method: 'GET',
-          url: '../api/index.php/v1/webstories/getimages',
-          headers: {
-            Authorization: 'Bearer ' + token,
-          },
-        }).then(({ data }) => {
-          const divTag = document.getElementById('posterCarousel');
-          divTag.innerHTML = '';
-          divTag.className = 'form-check';
-          data.map(({ src }) => {
-            const element =
-              `<label><input type='radio'  data-src="` +
-              src +
-              `" name="image" id=` +
-              src +
-              `><img src='` +
-              src +
-              `'" style='height:200px;width:200px;margin:5px'></label>`;
-            divTag.innerHTML += element;
-          });
+        const response = await getMedia('image');
+        const { data } = response;
+        const divTag = document.getElementById('posterCarousel');
+        divTag.innerHTML = '';
+        divTag.className = 'form-check';
+        data.map(({ src }) => {
+          const element =
+            `<label><input type='radio'  data-src="` +
+            src +
+            `" name="image" id=` +
+            src +
+            `><img src='` +
+            src +
+            `'" style='height:200px;width:200px;margin:5px'></label>`;
+          divTag.innerHTML += element;
         });
         window.insertPoster = insertPoster;
       }
@@ -159,7 +136,7 @@ function useMediaPicker({ onClose, onPermissionError, title }) {
       onPermissionError,
       embedPreview,
       submitImages,
-      token,
+      getMedia,
       insertPoster,
     ]
   );

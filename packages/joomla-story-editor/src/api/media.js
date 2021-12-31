@@ -17,6 +17,11 @@
  * External dependencies
  */
 import axios from 'axios';
+/**
+ * Internal dependencies
+ */
+import getResourceFromLocalFile from '../components/mediaUpload/mediaPicker/utils/getResourceFromLocalFile';
+
 export const getMedia = async (config, { mediaType }) => {
   const response = await axios({
     method: 'GET',
@@ -38,4 +43,32 @@ export const getMedia = async (config, { mediaType }) => {
     totalPages: response.headers['x-wp-totalpages'],
   };
   return { data, headers };
+};
+export const deleteMedia = async (config, mediaId) => {
+  const response = await axios({
+    method: 'POST',
+    url: config.api.deleteMedia,
+    data: {
+      id: mediaId,
+    },
+    headers: {
+      Authorization: 'Bearer ' + config.token,
+    },
+  });
+  return response;
+};
+export const uploadMedia = async (config, file, additionalData) => {
+  const formData = new FormData();
+  formData.append('media', file);
+  const { posterFile } = await getResourceFromLocalFile(file);
+  formData.append('poster_image', posterFile);
+  const response = await axios({
+    method: 'POST',
+    url: '../api/index.php/v1/webstories/save_file',
+    data: formData,
+    headers: {
+      Authorization: 'Bearer ' + config.token,
+    },
+  });
+  return response.data;
 };
