@@ -110,7 +110,7 @@ function useMediaPicker({ onClose, onPermissionError, title }) {
         window.embedPreview = embedPreview;
         window.submitImages = submitImages;
       } else {
-        const response = await getMedia('image');
+        const response = await getMedia({ mediaType: 'image' });
         const { data } = response;
         const divTag = document.getElementById('posterCarousel');
         divTag.innerHTML = '';
