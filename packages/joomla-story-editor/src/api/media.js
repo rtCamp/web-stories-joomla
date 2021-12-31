@@ -72,3 +72,6 @@ export const uploadMedia = async (config, file, additionalData) => {
   });
   return response.data;
 };
+export function updateMedia(config, mediaId, data) {
+  return Promise.resolve(() => {});
+}
