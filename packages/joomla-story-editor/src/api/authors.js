@@ -18,13 +18,23 @@
  */
 import axios from 'axios';
 
-export const getAuthors = async (globalconfig) => {
+export const getAuthors = async (config) => {
   const { data } = await axios({
     method: 'GET',
-    url: '../api/index.php/v1/webstories/users',
+    url: config.api.getUsers,
     headers: {
-      Authorization: 'Bearer ' + globalconfig.token,
+      Authorization: 'Bearer ' + config.token,
     },
   });
   return Promise.resolve(data);
 };
+export function getCurrentUser(config) {
+  return Promise.resolve(() => {
+    return { id: config.userId };
+  });
+}
+export function updateCurrentUser(config, data) {
+  return Promise.resolve(() => {
+    return { id: config.userId };
+  });
+}
