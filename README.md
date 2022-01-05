@@ -11,7 +11,4 @@ With Web Stories for Joomla, we're bringing first-class Web Stories support to J
 
 We'd love to accept your patches and contributions to this project. There are just a few small guidelines you need to follow. Please check out our [Contributing documentation](./CONTRIBUTING.md) and the [Getting Started](./docs/getting-started.md) guide.
 
-## Product Spec
-
-* [Product spec](https://docs.google.com/document/d/18gjAOvAf2TCWpFy_9mr1V9a2VZrM4Ty7Mfry5zdL31k/view)
-* [Roadmap](https://docs.google.com/spreadsheets/d/10DZZrWJdkjcJXD1vL0VG0PqRhsIqaHkacF_ujOdEwJc/view)
+[Usage](./usage.md)
