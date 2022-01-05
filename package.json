@@ -1,8 +1,8 @@
 {
-  "name": "web-stories-wp",
+  "name": "web-stories-joomla",
   "title": "Web Stories",
   "private": true,
-  "description": "Visual storytelling for WordPress.",
+  "description": "Visual storytelling for Joomla.",
   "author": "Google",
   "license": "Apache-2.0",
   "type": "module",
