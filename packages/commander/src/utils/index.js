@@ -19,3 +19,5 @@ export { default as createBuild } from './createBuild.js';
 export { default as getCurrentVersionNumber } from './getCurrentVersionNumber.js';
 export { default as updateVersionNumbers } from './updateVersionNumbers.js';
 export { default as updateCdnUrl } from './updateCdnUrl.js';
+export { default as generateZipFile } from './generateZipFile.js';
+export { default as deleteExistingZipFiles } from './deleteExistingZipFiles.js';

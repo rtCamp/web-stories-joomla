@@ -55,10 +55,7 @@ const sharedConfig = {
   mode,
   devtool: undefined,
   output: {
-    path: path.resolve(
-      '/Applications/XAMPP/xamppfiles/htdocs/Web-Stories-Joomla/webstories/media/',
-      'js'
-    ),
+    path: path.resolve('includes/webstories/media', 'js'),
     filename: '[name].js',
     chunkFilename: '[name].js?v=[chunkhash]',
     publicPath: '../media/com_webstories/js/',

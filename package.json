@@ -269,5 +269,7 @@
       "github-actions",
       "imgbot"
     ]
+  },
+  "dependencies": {
   }
 }

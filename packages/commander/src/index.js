@@ -30,11 +30,12 @@ const { inc: semverInc } = semver;
  * Internal dependencies
  */
 import {
-  bundlePlugin,
+  deleteExistingZipFiles,
   createBuild,
   getCurrentVersionNumber,
   updateVersionNumbers,
   updateCdnUrl,
+  generateZipFile,
 } from './utils/index.js';
 
 const PLUGIN_DIR = process.cwd();
@@ -118,22 +119,42 @@ program
     );
     console.log('  $ index.js build-plugin --composer --zip web-stories.zip');
   })
-  .action(({ composer, zip, clean }) => {
+  .action(({ composer }) => {
     const buildDirPath = `${PLUGIN_DIR}/${BUILD_DIR}`;
 
     // Make sure build directory exists and is empty.
     if (existsSync(BUILD_DIR)) {
       rmdirSync(BUILD_DIR, { recursive: true, force: true });
     }
-    mkdirSync(BUILD_DIR, { recursive: true });
+    if (existsSync('zips')) {
+      rmdirSync('zips', { recursive: true, force: true });
+    }
+    mkdirSync('zips', { recursive: true });
 
     createBuild(PLUGIN_DIR, buildDirPath, composer);
 
-    let build = BUILD_DIR;
-
-    if (zip) {
-      build = bundlePlugin(buildDirPath, composer, zip, clean);
-    }
+    const build = BUILD_DIR;
+    deleteExistingZipFiles(`${PLUGIN_DIR}/zips`);
+    generateZipFile(
+      `${PLUGIN_DIR}/includes/module`,
+      `${PLUGIN_DIR}/zips/module.zip`
+    );
+    generateZipFile(
+      `${PLUGIN_DIR}/includes/fields`,
+      `${PLUGIN_DIR}/zips/fields.zip`
+    );
+    generateZipFile(
+      `${PLUGIN_DIR}/includes/webservices`,
+      `${PLUGIN_DIR}/zips/webservices.zip`
+    );
+    generateZipFile(
+      `${PLUGIN_DIR}/includes/webstories`,
+      `${PLUGIN_DIR}/zips/webstories.zip`
+    );
+    generateZipFile(
+      `${PLUGIN_DIR}/zips/`,
+      `${BUILD_DIR}/joomla-web-stories.zip`
+    );
 
     console.log(
       `Plugin successfully built! Location: ${relative(process.cwd(), build)}`
