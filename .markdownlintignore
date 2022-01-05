@@ -1,8 +1,0 @@
-.github
-__mocks__
-assets
-bin
-build
-node_modules
-tests
-vendor
