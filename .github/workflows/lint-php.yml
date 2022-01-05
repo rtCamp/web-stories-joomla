@@ -1,0 +1,67 @@
+name: Lint PHP
+
+on:
+  push:
+    # Only run if PHP-related files changed.
+    paths:
+      - '**.php'
+      - 'phpcs.xml.dist'
+      - 'phpmd.xml'
+      - 'phpstan.neon.dist'
+      - 'composer.json'
+      - 'composer.lock'
+    branches:
+      - main
+      - release/*
+  pull_request:
+    # Only run if PHP-related files changed.
+    paths:
+      - '**.php'
+      - 'phpcs.xml.dist'
+      - 'phpmd.xml'
+      - 'phpstan.neon.dist'
+      - 'composer.json'
+      - 'composer.lock'
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+          tools: composer, cs2pr
+
+      - name: Validate composer.json
+        run: composer --no-interaction validate --no-check-all
+
+      - name: Install PHP dependencies
+        uses: 'ramsey/composer-install@v1'
+        with:
+          composer-options: '--prefer-dist --no-progress --no-interaction'
+
+      - name: Detect coding standard violations (PHPCS)
+        run: vendor/bin/phpcs -q --report=checkstyle --severity=1 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 | cs2pr --graceful-warnings
+
+      - name: Static Analysis (PHPStan)
+        run: composer phpstan -- --error-format=checkstyle | cs2pr
+
+      - name: Static Analysis (PHPMD)
+        run: composer phpmd
+
+      - name: Normalize composer.json
+        run: composer composer-normalize --no-interaction -- --dry-run

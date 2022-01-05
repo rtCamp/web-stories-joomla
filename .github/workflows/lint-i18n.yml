@@ -1,0 +1,122 @@
+name: Lint I18N
+
+on:
+  push:
+    paths:
+      - '**.js'
+      - '**/package.json'
+      - 'package-lock.json'
+      - 'web-stories.php'
+      - 'includes/**.php'
+      - '.github/workflows/lint-i18n.yml'
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '**.js'
+      - '**/package.json'
+      - 'package-lock.json'
+      - 'web-stories.php'
+      - 'includes/**.php'
+      - '.github/workflows/lint-i18n.yml'
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install WP-CLI
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          mkdir -p bin
+          mv wp-cli.phar bin/wp
+          echo "${PWD}/bin" >> $GITHUB_PATH
+
+      - name: WP-CLI Info
+        run: wp cli info
+
+      - name: Install latest version of i18n-command
+        run: wp package install wp-cli/i18n-command
+
+      - name: List packages
+        run: wp package list
+
+      - name: Setup Node
+        uses: actions/setup-node@v2.5.1
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+          tools: composer
+
+      - name: Install dependencies
+        run: |
+          npm ci
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+
+      - name: Install PHP dependencies
+        uses: 'ramsey/composer-install@v1'
+        with:
+          composer-options: '--prefer-dist --no-progress --no-interaction'
+
+      - name: Build plugin
+        run: npm run build:js
+
+      - name: Bundle regular version
+        run: npm run workflow:build-plugin
+
+      # Check if as many strings as expected were found.
+      # Fail job if `wp i18n make-pot` returns any warnings.
+      # Some false positive warnings are removed due to a bug in the string extraction.
+      # That's why this step is unfortunately a bit more complex.
+      # See https://github.com/wp-cli/i18n-command/issues/154
+      - name: Generate POT file
+        run: |
+          OUTPUT=$((wp i18n make-pot build/web-stories build/web-stories.pot) 2>&1 >/dev/null)
+
+          HAS_ERROR=false
+
+          EXPECTED_NUMBER_OF_STRINGS=1000
+          NUMBER_OF_FOUND_STRINGS=$(grep -o msgstr build/web-stories.pot | wc -l | xargs)
+
+          if (( "$NUMBER_OF_FOUND_STRINGS" < "$EXPECTED_NUMBER_OF_STRINGS" )); then
+          HAS_ERROR=true
+            echo "String extraction found only $NUMBER_OF_FOUND_STRINGS translatable strings. Expected at least $EXPECTED_NUMBER_OF_STRINGS."
+          fi
+
+          IFS=$'\n'
+          declare -a WARNINGS=($OUTPUT)
+          unset IFS
+
+          for WARNING in "${WARNINGS[@]}"; do
+            # Filter false positives.
+            if [[ $WARNING == *"translator comment"* ]] && [[ $WARNING != *"%s"* ]]; then
+              continue
+            fi
+
+            HAS_ERROR=true
+
+          	echo $WARNING
+          done
+
+          if [[ "$HAS_ERROR" = true ]]; then
+            exit 1
+          fi

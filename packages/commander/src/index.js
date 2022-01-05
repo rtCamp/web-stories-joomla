@@ -1,0 +1,193 @@
+#!/usr/bin/env node
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* eslint-disable no-console */
+
+/**
+ * External dependencies
+ */
+import { mkdirSync, rmdirSync, existsSync } from 'fs';
+import { relative } from 'path';
+import program from 'commander';
+import semver from 'semver';
+const { inc: semverInc } = semver;
+
+/**
+ * Internal dependencies
+ */
+import {
+  deleteExistingZipFiles,
+  createBuild,
+  getCurrentVersionNumber,
+  updateVersionNumbers,
+  updateCdnUrl,
+  generateZipFile,
+} from './utils/index.js';
+
+const PLUGIN_DIR = process.cwd();
+const PLUGIN_FILE = 'web-stories.php';
+const BUILD_DIR = 'build/web-stories';
+
+program
+  .command('version')
+  .arguments('[version]')
+  .option(
+    '--nightly',
+    'Whether this is a nightly build and thus should append the current revision to the version number.'
+  )
+  .option(
+    '--increment <level>',
+    `Increment a version by the specified level. Level can
+be one of: major, minor, patch, premajor, preminor,
+prepatch, or prerelease. Only one version may be specified.`
+  )
+  .option(
+    '--preid <identifier>',
+    `Identifier to be used to prefix premajor, preminor, prepatch or prerelease version increments.`,
+    'alpha'
+  )
+  .description('Bump the version of the plugin', {
+    version: 'The desired version number.',
+  })
+  .on('--help', () => {
+    console.log('');
+    console.log('Examples:');
+    console.log('  # Prepare stable release');
+    console.log('  $ index.js version 1.2.3');
+    console.log('');
+    console.log('  # Nightly build');
+    console.log('  $ index.js version --nightly');
+  })
+  .action((version, { nightly, increment, preid }) => {
+    const pluginFilePath = `${PLUGIN_DIR}/${PLUGIN_FILE}`;
+
+    const currentVersion = getCurrentVersionNumber(pluginFilePath);
+    let newVersion = version || currentVersion;
+
+    if (increment) {
+      newVersion = semverInc(currentVersion, increment, undefined, preid);
+    }
+
+    updateVersionNumbers(pluginFilePath, newVersion, nightly);
+    const constantVersion = getCurrentVersionNumber(pluginFilePath, true);
+
+    console.log(
+      `Version number successfully updated! New version: ${constantVersion}`
+    );
+  });
+
+program
+  .command('build-plugin')
+  .option(
+    '--composer',
+    'Create Composer-ready build. Does not contain PHP autoloader.'
+  )
+  .option(
+    '--zip [filename]',
+    'Generate a ready-to-use ZIP file. Optionally specify a file name.'
+  )
+  .option(
+    '--clean',
+    'Delete existing ZIP files in the build/ folder prior to bundling.'
+  )
+  .description('Build Web Stories plugin')
+  .on('--help', () => {
+    console.log('');
+    console.log('Examples:');
+    console.log('  # Create a ZIP-file ready to install in WordPress');
+    console.log('  $ index.js build-plugin --zip');
+    console.log('');
+    console.log('  # Remove existing ZIP files before creating one');
+    console.log('  $ index.js build-plugin --zip --clean');
+    console.log('');
+    console.log(
+      '  # Create a custom-named ZIP-file ready to use with Composer'
+    );
+    console.log('  $ index.js build-plugin --composer --zip web-stories.zip');
+  })
+  .action(({ composer }) => {
+    const buildDirPath = `${PLUGIN_DIR}/${BUILD_DIR}`;
+
+    // Make sure build directory exists and is empty.
+    if (existsSync(BUILD_DIR)) {
+      rmdirSync(BUILD_DIR, { recursive: true, force: true });
+    }
+    if (existsSync('zips')) {
+      rmdirSync('zips', { recursive: true, force: true });
+    }
+    mkdirSync('zips', { recursive: true });
+
+    createBuild(PLUGIN_DIR, buildDirPath, composer);
+
+    const build = BUILD_DIR;
+    deleteExistingZipFiles(`${PLUGIN_DIR}/zips`);
+    generateZipFile(
+      `${PLUGIN_DIR}/includes/module`,
+      `${PLUGIN_DIR}/zips/module.zip`
+    );
+    generateZipFile(
+      `${PLUGIN_DIR}/includes/fields`,
+      `${PLUGIN_DIR}/zips/fields.zip`
+    );
+    generateZipFile(
+      `${PLUGIN_DIR}/includes/webservices`,
+      `${PLUGIN_DIR}/zips/webservices.zip`
+    );
+    generateZipFile(
+      `${PLUGIN_DIR}/includes/webstories`,
+      `${PLUGIN_DIR}/zips/webstories.zip`
+    );
+    generateZipFile(
+      `${PLUGIN_DIR}/zips/`,
+      `${BUILD_DIR}/joomla-web-stories.zip`
+    );
+
+    console.log(
+      `Plugin successfully built! Location: ${relative(process.cwd(), build)}`
+    );
+  });
+
+program
+  .command('assets-version')
+  .arguments('<version>')
+  .description('Change the CDN assets version used by the plugin', {
+    version: 'Assets version. Either `main` or an integer.',
+  })
+  .on('--help', () => {
+    console.log('');
+    console.log('Examples:');
+    console.log(
+      '  # Change assets version to `main` (default, for development builds)'
+    );
+    console.log('  $ commander.js assets-version main');
+    console.log('');
+    console.log('  # Change assets version for stable release');
+    console.log('  $ commander.js assets-version 7');
+  })
+  .action((version) => {
+    const pluginFilePath = `${PLUGIN_DIR}/${PLUGIN_FILE}`;
+    updateCdnUrl(
+      pluginFilePath,
+      version === 'main' ? version : parseInt(version)
+    );
+
+    console.log(`Assets CDN URL successfully updated!`);
+  });
+
+program.parse(process.argv);
+
+/* eslint-enable no-console */
