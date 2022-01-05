@@ -18,4 +18,3 @@ node_modules
 phpcs.xml
 phpunit.xml
 .phpunit.result.cache
-/includes/webstories/media/

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://developer.joomla.org/schemason-schema/web_assets.json",
+  "name": "com_webstories",
+  "version": "1.0.0",
+  "description": "Joomla CMS",
+  "license": "GPL-2.0-or-later",
+  "assets": [
+    {
+      "name": "com_webstories.joomla-story-editor",
+      "type": "style",
+      "uri": "com_webstories/joomla-story-editor.css"
+    },
+    {
+      "name": "com_webstories.joomla-story-editor-rtl",
+      "type": "style",
+      "uri": "com_webstories/joomla-story-editor-rtl.css"
+    },
+    {
+      "name": "com_webstories.joomla-props-to-save",
+      "type": "style",
+      "uri": "com_webstories/vendors-chunk-getStoryPropsToSave-joomla-story-editor.css"
+    },
+    {
+      "name": "com_webstories.joomla-props-to-save-rtl",
+      "type": "style",
+      "uri": "com_webstories/vendors-chunk-getStoryPropsToSave-joomla-story-editor-rtl.css"
+    },
+    {
+      "name": "com_webstories.story-editor-js",
+      "type": "script",
+      "uri": "com_webstories/joomla-story-editor.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_webstories.vendor-shared-js",
+      "type": "script",
+      "uri": "com_webstories/vendors-joomla-dashboard-joomla-story-editor.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_webstories.dashboard",
+      "type": "script",
+      "uri": "com_webstories/joomla-dashboard.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_webstories.vendors-dashboard",
+      "type": "script",
+      "uri": "com_webstories/vendors-joomla-dashboard.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_webstories.resize-observer",
+      "type": "script",
+      "uri": "com_webstories/vendors-chunk-resize-observer-polyfill-joomla-story-editor.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_webstories.get-story-props-to-save",
+      "type": "script",
+      "uri": "com_webstories/vendors-chunk-getStoryPropsToSave-joomla-story-editor.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_webstories.get-story-props-to-save-shared",
+      "type": "script",
+      "uri": "com_webstories/vendors-chunk-getStoryPropsToSave-chunk-resize-observer-polyfill-joomla-story-editor.js",
+      "attributes": {
+        "defer": true
+      }
+    },
+    {
+      "name": "com_webstories.activation-notice",
+      "type": "script",
+      "uri": "com_webstories/web-stories-activation-notice.js"
+    }
+  ]
+}
