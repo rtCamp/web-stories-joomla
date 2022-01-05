@@ -1,187 +1,176 @@
 <?php
 
-/////////////////////////////////////////////////////////////////
-/// getID3() by James Heinrich <info@getid3.org>               //
-//  available at https://github.com/JamesHeinrich/getID3       //
-//            or https://www.getid3.org                        //
-//            or http://getid3.sourceforge.net                 //
-//  see readme.txt for more details                            //
-/////////////////////////////////////////////////////////////////
-//                                                             //
+// 
+// getID3() by James Heinrich <info@getid3.org>               //
+// available at https://github.com/JamesHeinrich/getID3       //
+// or https://www.getid3.org                        //
+// or http://getid3.sourceforge.net                 //
+// see readme.txt for more details                            //
+// 
+// 
 // module.tag.xmp.php                                          //
 // module for analyzing XMP metadata (e.g. in JPEG files)      //
 // dependencies: NONE                                          //
-//                                                             //
-/////////////////////////////////////////////////////////////////
-//                                                             //
+// 
+// 
+// 
 // Module originally written [2009-Mar-26] by                  //
-//      Nigel Barnes <ngbarnesØhotmail*com>                    //
+// Nigel Barnes <ngbarnesØhotmail*com>                    //
 // Bundled into getID3 with permission                         //
-//   called by getID3 in module.graphic.jpg.php                //
-//                                                            ///
-/////////////////////////////////////////////////////////////////
+// called by getID3 in module.graphic.jpg.php                //
+// 
+// 
 
 /**************************************************************************************************
  * SWISScenter Source                                                              Nigel Barnes
  *
- * 	Provides functions for reading information from the 'APP1' Extensible Metadata
- *	Platform (XMP) segment of JPEG format files.
- *	This XMP segment is XML based and contains the Resource Description Framework (RDF)
- *	data, which itself can contain the Dublin Core Metadata Initiative (DCMI) information.
+ *  Provides functions for reading information from the 'APP1' Extensible Metadata
+ *  Platform (XMP) segment of JPEG format files.
+ *  This XMP segment is XML based and contains the Resource Description Framework (RDF)
+ *  data, which itself can contain the Dublin Core Metadata Initiative (DCMI) information.
  *
- * 	This code uses segments from the JPEG Metadata Toolkit project by Evan Hunter.
+ *  This code uses segments from the JPEG Metadata Toolkit project by Evan Hunter.
  *************************************************************************************************/
-class Image_XMP
-{
+class Image_XMP {
+
 	/**
-	* @var string
-	* The name of the image file that contains the XMP fields to extract and modify.
-	* @see Image_XMP()
-	*/
+	 * @var string
+	 * The name of the image file that contains the XMP fields to extract and modify.
+	 * @see Image_XMP()
+	 */
 	public $_sFilename = null;
 
 	/**
-	* @var array
-	* The XMP fields that were extracted from the image or updated by this class.
-	* @see getAllTags()
-	*/
-	public $_aXMP = array();
+	 * @var array
+	 * The XMP fields that were extracted from the image or updated by this class.
+	 * @see getAllTags()
+	 */
+	public $_aXMP = [];
 
 	/**
-	* @var boolean
-	* True if an APP1 segment was found to contain XMP metadata.
-	* @see isValid()
-	*/
+	 * @var boolean
+	 * True if an APP1 segment was found to contain XMP metadata.
+	 * @see isValid()
+	 */
 	public $_bXMPParse = false;
 
 	/**
-	* Returns the status of XMP parsing during instantiation
-	*
-	* You'll normally want to call this method before trying to get XMP fields.
-	*
-	* @return boolean
-	* Returns true if an APP1 segment was found to contain XMP metadata.
-	*/
-	public function isValid()
-	{
-		return $this->_bXMPParse;
+	 * Returns the status of XMP parsing during instantiation
+	 *
+	 * You'll normally want to call this method before trying to get XMP fields.
+	 *
+	 * @return boolean
+	 * Returns true if an APP1 segment was found to contain XMP metadata.
+	 */
+	public function isValid() {
+		 return $this->_bXMPParse;
 	}
 
 	/**
-	* Get a copy of all XMP tags extracted from the image
-	*
-	* @return array - An array of XMP fields as it extracted by the XMPparse() function
-	*/
-	public function getAllTags()
-	{
+	 * Get a copy of all XMP tags extracted from the image
+	 *
+	 * @return array - An array of XMP fields as it extracted by the XMPparse() function
+	 */
+	public function getAllTags() {
 		return $this->_aXMP;
 	}
 
 	/**
-	* Reads all the JPEG header segments from an JPEG image file into an array
-	*
-	* @param string $filename - the filename of the JPEG file to read
-	* @return array|false  $headerdata - Array of JPEG header segments,
-	*                        FALSE - if headers could not be read
-	*/
-	public function _get_jpeg_header_data($filename)
-	{
+	 * Reads all the JPEG header segments from an JPEG image file into an array
+	 *
+	 * @param string $filename - the filename of the JPEG file to read
+	 * @return array|false  $headerdata - Array of JPEG header segments,
+	 *                        FALSE - if headers could not be read
+	 */
+	public function _get_jpeg_header_data( $filename ) {
 		// prevent refresh from aborting file operations and hosing file
-		ignore_user_abort(true);
+		ignore_user_abort( true );
 
 		// Attempt to open the jpeg file - the at symbol supresses the error message about
 		// not being able to open files. The file_exists would have been used, but it
 		// does not work with files fetched over http or ftp.
-		if (is_readable($filename) && is_file($filename) && ($filehnd = fopen($filename, 'rb'))) {
+		if ( is_readable( $filename ) && is_file( $filename ) && ( $filehnd = fopen( $filename, 'rb' ) ) ) {
 			// great
 		} else {
 			return false;
 		}
 
 		// Read the first two characters
-		$data = fread($filehnd, 2);
+		$data = fread( $filehnd, 2 );
 
 		// Check that the first two characters are 0xFF 0xD8  (SOI - Start of image)
-		if ($data != "\xFF\xD8")
-		{
+		if ( $data != "\xFF\xD8" ) {
 			// No SOI (FF D8) at start of file - This probably isn't a JPEG file - close file and return;
-			echo '<p>This probably is not a JPEG file</p>'."\n";
-			fclose($filehnd);
+			echo '<p>This probably is not a JPEG file</p>' . "\n";
+			fclose( $filehnd );
 			return false;
 		}
 
 		// Read the third character
-		$data = fread($filehnd, 2);
+		$data = fread( $filehnd, 2 );
 
 		// Check that the third character is 0xFF (Start of first segment header)
-		if ($data[0] != "\xFF")
-		{
+		if ( $data[0] != "\xFF" ) {
 			// NO FF found - close file and return - JPEG is probably corrupted
-			fclose($filehnd);
+			fclose( $filehnd );
 			return false;
 		}
 
 		// Flag that we havent yet hit the compressed image data
 		$hit_compressed_image_data = false;
 
-		$headerdata = array();
+		$headerdata = [];
 		// Cycle through the file until, one of: 1) an EOI (End of image) marker is hit,
-		//                                       2) we have hit the compressed image data (no more headers are allowed after data)
-		//                                       3) or end of file is hit
+		// 2) we have hit the compressed image data (no more headers are allowed after data)
+		// 3) or end of file is hit
 
-		while (($data[1] != "\xD9") && (!$hit_compressed_image_data) && (!feof($filehnd)))
-		{
+		while ( ( $data[1] != "\xD9" ) && ( ! $hit_compressed_image_data ) && ( ! feof( $filehnd ) ) ) {
 			// Found a segment to look at.
 			// Check that the segment marker is not a Restart marker - restart markers don't have size or data after them
-			if ((ord($data[1]) < 0xD0) || (ord($data[1]) > 0xD7))
-			{
+			if ( ( ord( $data[1] ) < 0xD0 ) || ( ord( $data[1] ) > 0xD7 ) ) {
 				// Segment isn't a Restart marker
 				// Read the next two bytes (size)
-				$sizestr = fread($filehnd, 2);
+				$sizestr = fread( $filehnd, 2 );
 
 				// convert the size bytes to an integer
-				$decodedsize = unpack('nsize', $sizestr);
+				$decodedsize = unpack( 'nsize', $sizestr );
 
 				// Save the start position of the data
-				$segdatastart = ftell($filehnd);
+				$segdatastart = ftell( $filehnd );
 
 				// Read the segment data with length indicated by the previously read size
-				$segdata = fread($filehnd, $decodedsize['size'] - 2);
+				$segdata = fread( $filehnd, $decodedsize['size'] - 2 );
 
 				// Store the segment information in the output array
-				$headerdata[] = array(
-					'SegType'      => ord($data[1]),
-					'SegName'      => $GLOBALS['JPEG_Segment_Names'][ord($data[1])],
+				$headerdata[] = [
+					'SegType'      => ord( $data[1] ),
+					'SegName'      => $GLOBALS['JPEG_Segment_Names'][ ord( $data[1] ) ],
 					'SegDataStart' => $segdatastart,
 					'SegData'      => $segdata,
-				);
+				];
 			}
 
 			// If this is a SOS (Start Of Scan) segment, then there is no more header data - the compressed image data follows
-			if ($data[1] == "\xDA")
-			{
+			if ( $data[1] == "\xDA" ) {
 				// Flag that we have hit the compressed image data - exit loop as no more headers available.
 				$hit_compressed_image_data = true;
-			}
-			else
-			{
+			} else {
 				// Not an SOS - Read the next two bytes - should be the segment marker for the next segment
-				$data = fread($filehnd, 2);
+				$data = fread( $filehnd, 2 );
 
 				// Check that the first byte of the two is 0xFF as it should be for a marker
-				if ($data[0] != "\xFF")
-				{
+				if ( $data[0] != "\xFF" ) {
 					// NO FF found - close file and return - JPEG is probably corrupted
-					fclose($filehnd);
+					fclose( $filehnd );
 					return false;
 				}
 			}
 		}
 
 		// Close File
-		fclose($filehnd);
+		fclose( $filehnd );
 		// Alow the user to abort from now on
-		ignore_user_abort(false);
+		ignore_user_abort( false );
 
 		// Return the header data retrieved
 		return $headerdata;
@@ -189,32 +178,31 @@ class Image_XMP
 
 
 	/**
-	* Retrieves XMP information from an APP1 JPEG segment and returns the raw XML text as a string.
-	*
-	* @param string $filename - the filename of the JPEG file to read
-	* @return string|false $xmp_data - the string of raw XML text,
-	*                        FALSE - if an APP 1 XMP segment could not be found, or if an error occurred
-	*/
-	public function _get_XMP_text($filename)
-	{
-		//Get JPEG header data
-		$jpeg_header_data = $this->_get_jpeg_header_data($filename);
+	 * Retrieves XMP information from an APP1 JPEG segment and returns the raw XML text as a string.
+	 *
+	 * @param string $filename - the filename of the JPEG file to read
+	 * @return string|false $xmp_data - the string of raw XML text,
+	 *                        FALSE - if an APP 1 XMP segment could not be found, or if an error occurred
+	 */
+	public function _get_XMP_text( $filename ) {
+		// Get JPEG header data
+		$jpeg_header_data = $this->_get_jpeg_header_data( $filename );
 
-		//Cycle through the header segments
-		if (is_array($jpeg_header_data) && count($jpeg_header_data) > 0) {
-			foreach ($jpeg_header_data as $segment) {
+		// Cycle through the header segments
+		if ( is_array( $jpeg_header_data ) && count( $jpeg_header_data ) > 0 ) {
+			foreach ( $jpeg_header_data as $segment ) {
 				// If we find an APP1 header,
-				if (strcmp($segment['SegName'], 'APP1') === 0) {
+				if ( strcmp( $segment['SegName'], 'APP1' ) === 0 ) {
 					// And if it has the Adobe XMP/RDF label (http://ns.adobe.com/xap/1.0/\x00) ,
-					if (strncmp($segment['SegData'], 'http://ns.adobe.com/xap/1.0/' . "\x00", 29) === 0) {
+					if ( strncmp( $segment['SegData'], 'http://ns.adobe.com/xap/1.0/' . "\x00", 29 ) === 0 ) {
 						// Found a XMP/RDF block
 						// Return the XMP text
-						$xmp_data = substr($segment['SegData'], 29);
+						$xmp_data = substr( $segment['SegData'], 29 );
 
 						// trim() should not be necessary, but some files found in the wild with null-terminated block
 						// (known samples from Apple Aperture) causes problems elsewhere
 						// (see https://www.getid3.org/phpBB3/viewtopic.php?f=4&t=1153)
-						return trim($xmp_data);
+						return trim( $xmp_data );
 					}
 				}
 			}
@@ -224,70 +212,63 @@ class Image_XMP
 	}
 
 	/**
-	* Parses a string containing XMP data (XML), and returns an array
-	* which contains all the XMP (XML) information.
-	*
-	* @param string $xmltext - a string containing the XMP data (XML) to be parsed
-	* @return array|false $xmp_array - an array containing all xmp details retrieved,
-	*                       FALSE - couldn't parse the XMP data.
-	*/
-	public function read_XMP_array_from_text($xmltext)
-	{
+	 * Parses a string containing XMP data (XML), and returns an array
+	 * which contains all the XMP (XML) information.
+	 *
+	 * @param string $xmltext - a string containing the XMP data (XML) to be parsed
+	 * @return array|false $xmp_array - an array containing all xmp details retrieved,
+	 *                       FALSE - couldn't parse the XMP data.
+	 */
+	public function read_XMP_array_from_text( $xmltext ) {
 		// Check if there actually is any text to parse
-		if (trim($xmltext) == '')
-		{
+		if ( trim( $xmltext ) == '' ) {
 			return false;
 		}
 
 		// Create an instance of a xml parser to parse the XML text
-		$xml_parser = xml_parser_create('UTF-8');
+		$xml_parser = xml_parser_create( 'UTF-8' );
 
 		// Change: Fixed problem that caused the whitespace (especially newlines) to be destroyed when converting xml text to an xml array, as of revision 1.10
 
 		// We would like to remove unneccessary white space, but this will also
 		// remove things like newlines (&#xA;) in the XML values, so white space
 		// will have to be removed later
-		if (xml_parser_set_option($xml_parser, XML_OPTION_SKIP_WHITE, 0) == false)
-		{
+		if ( xml_parser_set_option( $xml_parser, XML_OPTION_SKIP_WHITE, 0 ) == false ) {
 			// Error setting case folding - destroy the parser and return
-			xml_parser_free($xml_parser);
+			xml_parser_free( $xml_parser );
 			return false;
 		}
 
 		// to use XML code correctly we have to turn case folding
 		// (uppercasing) off. XML is case sensitive and upper
 		// casing is in reality XML standards violation
-		if (xml_parser_set_option($xml_parser, XML_OPTION_CASE_FOLDING, 0) == false)
-		{
+		if ( xml_parser_set_option( $xml_parser, XML_OPTION_CASE_FOLDING, 0 ) == false ) {
 			// Error setting case folding - destroy the parser and return
-			xml_parser_free($xml_parser);
+			xml_parser_free( $xml_parser );
 			return false;
 		}
 
 		// Parse the XML text into a array structure
-		if (xml_parse_into_struct($xml_parser, $xmltext, $values, $tags) == 0)
-		{
+		if ( xml_parse_into_struct( $xml_parser, $xmltext, $values, $tags ) == 0 ) {
 			// Error Parsing XML - destroy the parser and return
-			xml_parser_free($xml_parser);
+			xml_parser_free( $xml_parser );
 			return false;
 		}
 
 		// Destroy the xml parser
-		xml_parser_free($xml_parser);
+		xml_parser_free( $xml_parser );
 
 		// Clear the output array
-		$xmp_array = array();
+		$xmp_array = [];
 
 		// The XMP data has now been parsed into an array ...
 
 		// Cycle through each of the array elements
 		$current_property = ''; // current property being processed
-		$container_index = -1; // -1 = no container open, otherwise index of container content
-		foreach ($values as $xml_elem)
-		{
+		$container_index  = -1; // -1 = no container open, otherwise index of container content
+		foreach ( $values as $xml_elem ) {
 			// Syntax and Class names
-			switch ($xml_elem['tag'])
-			{
+			switch ( $xml_elem['tag'] ) {
 				case 'x:xmpmeta':
 					// only defined attribute is x:xmptk written by Adobe XMP Toolkit; value is the version of the toolkit
 					break;
@@ -297,22 +278,19 @@ class Image_XMP
 					break;
 
 				case 'rdf:Description':
-					switch ($xml_elem['type'])
-					{
+					switch ( $xml_elem['type'] ) {
 						case 'open':
 						case 'complete':
-							if (array_key_exists('attributes', $xml_elem))
-							{
+							if ( array_key_exists( 'attributes', $xml_elem ) ) {
 								// rdf:Description may contain wanted attributes
-								foreach (array_keys($xml_elem['attributes']) as $key)
-								{
+								foreach ( array_keys( $xml_elem['attributes'] ) as $key ) {
 									// Check whether we want this details from this attribute
-//									if (in_array($key, $GLOBALS['XMP_tag_captions']))
-//									if (true)
-//									{
+									// if (in_array($key, $GLOBALS['XMP_tag_captions']))
+									// if (true)
+									// {
 										// Attribute wanted
-										$xmp_array[$key] = $xml_elem['attributes'][$key];
-//									}
+										$xmp_array[ $key ] = $xml_elem['attributes'][ $key ];
+									// }
 								}
 							}
 							break;
@@ -329,22 +307,18 @@ class Image_XMP
 
 				case 'rdf:li':
 					// Property member
-					if ($xml_elem['type'] == 'complete')
-					{
-						if (array_key_exists('attributes', $xml_elem))
-						{
+					if ( $xml_elem['type'] == 'complete' ) {
+						if ( array_key_exists( 'attributes', $xml_elem ) ) {
 							// If Lang Alt (language alternatives) then ensure we take the default language
-							if (isset($xml_elem['attributes']['xml:lang']) && ($xml_elem['attributes']['xml:lang'] != 'x-default'))
-							{
+							if ( isset( $xml_elem['attributes']['xml:lang'] ) && ( $xml_elem['attributes']['xml:lang'] != 'x-default' ) ) {
 								break;
 							}
 						}
-						if ($current_property != '')
-						{
-							$xmp_array[$current_property][$container_index] = (isset($xml_elem['value']) ? $xml_elem['value'] : '');
-							$container_index += 1;
+						if ( $current_property != '' ) {
+							$xmp_array[ $current_property ][ $container_index ] = ( isset( $xml_elem['value'] ) ? $xml_elem['value'] : '' );
+							$container_index                                   += 1;
 						}
-					//else unidentified attribute!!
+						// else unidentified attribute!!
 					}
 					break;
 
@@ -352,11 +326,10 @@ class Image_XMP
 				case 'rdf:Bag':
 				case 'rdf:Alt':
 					// Container found
-					switch ($xml_elem['type'])
-					{
+					switch ( $xml_elem['type'] ) {
 						case 'open':
- 							$container_index = 0;
- 							break;
+							$container_index = 0;
+							break;
 						case 'close':
 							$container_index = -1;
 							break;
@@ -367,57 +340,52 @@ class Image_XMP
 
 				default:
 					// Check whether we want the details from this attribute
-//					if (in_array($xml_elem['tag'], $GLOBALS['XMP_tag_captions']))
-//					if (true)
-//					{
-						switch ($xml_elem['type'])
-						{
-							case 'open':
-								// open current element
-								$current_property = $xml_elem['tag'];
-								break;
+					// if (in_array($xml_elem['tag'], $GLOBALS['XMP_tag_captions']))
+					// if (true)
+					// {
+					switch ( $xml_elem['type'] ) {
+						case 'open':
+							// open current element
+							$current_property = $xml_elem['tag'];
+							break;
 
-							case 'close':
-								// close current element
-								$current_property = '';
-								break;
+						case 'close':
+							// close current element
+							$current_property = '';
+							break;
 
-							case 'complete':
-								// store attribute value
-								$xmp_array[$xml_elem['tag']] = (isset($xml_elem['attributes']) ? $xml_elem['attributes'] : (isset($xml_elem['value']) ? $xml_elem['value'] : ''));
-								break;
+						case 'complete':
+							// store attribute value
+							$xmp_array[ $xml_elem['tag'] ] = ( isset( $xml_elem['attributes'] ) ? $xml_elem['attributes'] : ( isset( $xml_elem['value'] ) ? $xml_elem['value'] : '' ) );
+							break;
 
-							case 'cdata':
-								// ignore
-								break;
-						}
-//					}
+						case 'cdata':
+							// ignore
+							break;
+					}
+					// }
 					break;
-			}
-
+			}       
 		}
 		return $xmp_array;
 	}
 
 
 	/**
-	* Constructor
-	*
-	* @param string $sFilename - Name of the image file to access and extract XMP information from.
-	*/
-	public function __construct($sFilename)
-	{
+	 * Constructor
+	 *
+	 * @param string $sFilename - Name of the image file to access and extract XMP information from.
+	 */
+	public function __construct( $sFilename ) {
 		$this->_sFilename = $sFilename;
 
-		if (is_file($this->_sFilename))
-		{
+		if ( is_file( $this->_sFilename ) ) {
 			// Get XMP data
-			$xmp_data = $this->_get_XMP_text($sFilename);
-			if ($xmp_data)
-			{
-				$aXMP = $this->read_XMP_array_from_text($xmp_data);
-				if ($aXMP !== false) {
-					$this->_aXMP = (array) $aXMP;
+			$xmp_data = $this->_get_XMP_text( $sFilename );
+			if ( $xmp_data ) {
+				$aXMP = $this->read_XMP_array_from_text( $xmp_data );
+				if ( $aXMP !== false ) {
+					$this->_aXMP      = (array) $aXMP;
 					$this->_bXMPParse = true;
 				}
 			}
@@ -708,7 +676,7 @@ $GLOBALS['XMP_tag_captions'] = array(
 *
 * The names of the JPEG segment markers, indexed by their marker number
 */
-$GLOBALS['JPEG_Segment_Names'] = array(
+$GLOBALS['JPEG_Segment_Names'] = [
 	0x01 => 'TEM',
 	0x02 => 'RES',
 	0xC0 => 'SOF0',
@@ -774,4 +742,4 @@ $GLOBALS['JPEG_Segment_Names'] = array(
 	0xFC => 'JPG12',
 	0xFD => 'JPG13',
 	0xFE => 'COM',
-);
+];
