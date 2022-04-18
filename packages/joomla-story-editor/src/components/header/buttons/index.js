@@ -18,7 +18,8 @@
  * External dependencies
  */
 import styled from 'styled-components';
-import { CircularProgress, useStory } from '@googleforcreators/story-editor';
+import { CircularProgress } from '@googleforcreators/design-system';
+import { useStory } from '@googleforcreators/story-editor';
 
 /**
  * Internal dependencies

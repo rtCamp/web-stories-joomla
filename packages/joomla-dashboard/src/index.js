@@ -17,7 +17,7 @@
 /**
  * External dependencies
  */
-import Dashboard, { InterfaceSkeleton } from '@googleforcreators/dashboard';
+import { Dashboard, InterfaceSkeleton } from '@googleforcreators/dashboard';
 import { render } from '@googleforcreators/react';
 
 /**

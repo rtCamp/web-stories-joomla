@@ -19,14 +19,12 @@
  */
 const path = require('path');
 const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const RtlCssPlugin = require('rtlcss-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackBar = require('webpackbar');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CircularDependencyPlugin = require('circular-dependency-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 /**
@@ -60,7 +58,7 @@ const mode = isProduction ? 'production' : 'development';
 const sharedConfig = {
   resolve: {
     // Fixes resolving packages in the monorepo so we use the "src" folder, not "dist".
-    exportsFields: ['customExports', 'exports'],
+    exportsFields: ['exports'],
   },
   mode,
   devtool: !isProduction ? 'source-map' : undefined,
@@ -192,7 +190,7 @@ const sharedConfig = {
       },
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: ['css-loader'],
         sideEffects: true,
       },
       {
@@ -209,9 +207,6 @@ const sharedConfig = {
       new BundleAnalyzerPlugin({
         analyzerPort: 'auto',
       }),
-    new MiniCssExtractPlugin({
-      filename: '../css/[name].css',
-    }),
     new RtlCssPlugin({
       filename: `../css/[name]-rtl.css`,
     }),
@@ -230,18 +225,6 @@ const sharedConfig = {
       ),
     }),
     new DependencyExtractionWebpackPlugin(),
-    !isProduction &&
-      new CircularDependencyPlugin({
-        // exclude detection of files based on a RegExp
-        include: /packages/,
-        // add errors to webpack instead of warnings
-        failOnError: true,
-        // allow import cycles that include an asynchronous import,
-        // e.g. via import(/* webpackMode: "weak" */ './file.js')
-        allowAsyncCycles: false,
-        // set the current working directory for displaying module paths
-        cwd: process.cwd(),
-      }),
   ].filter(Boolean),
   optimization: {
     sideEffects: true,

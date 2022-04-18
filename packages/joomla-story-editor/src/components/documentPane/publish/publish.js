@@ -33,7 +33,7 @@ import {
   useStory,
   useConfig,
   useHighlights,
-  useInspector,
+  useSidebar
 } from '@googleforcreators/story-editor';
 
 /**
@@ -90,7 +90,7 @@ const MediaInputWrapper = styled.div`
 function PublishPanel() {
   const {
     state: { users },
-  } = useInspector();
+  } = useSidebar();
 
   const {
     allowedImageMimeTypes,

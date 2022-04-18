@@ -18,7 +18,7 @@
  * External dependencies
  */
 import { render } from '@googleforcreators/react';
-import StoryEditor, { InterfaceSkeleton } from '@googleforcreators/story-editor';
+import { StoryEditor, InterfaceSkeleton } from '@googleforcreators/story-editor';
 import { __ } from '@googleforcreators/i18n';
 import styled from 'styled-components';
 /**

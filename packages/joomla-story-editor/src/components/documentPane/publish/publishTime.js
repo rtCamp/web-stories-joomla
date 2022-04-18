@@ -29,11 +29,11 @@ import {
   DropDownSelect,
   PLACEMENT,
   useKeyDownEffect,
+  Popup,
 } from '@googleforcreators/design-system';
 import {
   DateTime,
   Row,
-  Popup,
   useStory,
   focusStyle,
 } from '@googleforcreators/story-editor';

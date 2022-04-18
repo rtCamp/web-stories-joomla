@@ -26,7 +26,6 @@ import {
   Row,
   RadioGroup,
   SimplePanel,
-  ReviewChecklistDialog,
   useStory,
   useCheckpoint,
   useRefreshPostEditURL,
@@ -225,12 +224,6 @@ function StatusPanel() {
           )}
         </>
       </SimplePanel>
-      <ReviewChecklistDialog
-        isOpen={showReviewDialog}
-        onIgnore={publishPrivately}
-        onClose={closeReviewDialog}
-        onReview={closeReviewDialog}
-      />
     </>
   );
 }
