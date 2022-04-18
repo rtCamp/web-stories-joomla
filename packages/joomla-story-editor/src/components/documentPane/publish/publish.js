@@ -17,10 +17,10 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
+import { useCallback } from '@googleforcreators/react';
 import styled from 'styled-components';
-import { __, sprintf, translateToExclusiveList } from '@web-stories-wp/i18n';
-import { Text, THEME_CONSTANTS } from '@web-stories-wp/design-system';
+import { __, sprintf, translateToExclusiveList } from '@googleforcreators/i18n';
+import { Text, THEME_CONSTANTS } from '@googleforcreators/design-system';
 import {
   highlightStates as states,
   highlightStyles as styles,
@@ -34,7 +34,7 @@ import {
   useConfig,
   useHighlights,
   useInspector,
-} from '@web-stories-wp/story-editor';
+} from '@googleforcreators/story-editor';
 
 /**
  * Internal dependencies
@@ -127,7 +127,7 @@ function PublishPanel() {
     /**
      * Handle story poster change.
      *
-     * @param {import('@web-stories-wp/media').Resource} newPoster The new image.
+     * @param {import('@googleforcreators/media').Resource} newPoster The new image.
      * @return {void}
      */
     (newPoster) => {

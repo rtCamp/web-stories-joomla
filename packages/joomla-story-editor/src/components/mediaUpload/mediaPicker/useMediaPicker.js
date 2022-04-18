@@ -17,9 +17,9 @@
 /**
  * External dependencies
  */
-import { useCallback } from '@web-stories-wp/react';
-import { trackEvent } from '@web-stories-wp/tracking';
-import { useConfig, useStory, useAPI } from '@web-stories-wp/story-editor';
+import { useCallback } from '@googleforcreators/react';
+import { trackEvent } from '@googleforcreators/tracking';
+import { useConfig, useStory, useAPI } from '@googleforcreators/story-editor';
 import PropTypes from 'prop-types';
 
 /**

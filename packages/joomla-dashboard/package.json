@@ -1,5 +1,5 @@
 {
-    "name": "@web-stories-wp/joomla-dashboard",
+    "name": "joomla-dashboard",
     "private": true,
     "engines": {
       "node": ">= 16",
@@ -15,6 +15,7 @@
         "@googleforcreators/design-system": "^0.1.202204141511",
         "@googleforcreators/element-library": "^0.1.202204141511",
         "@googleforcreators/i18n": "^0.1.202204141511",
+        "@googleforcreators/patterns": "^0.1.202204141511",
         "@googleforcreators/react": "^0.1.202204141511",
         "@googleforcreators/tracking": "^0.1.202204141511",
         "axios": "^0.24.0",

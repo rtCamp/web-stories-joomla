@@ -18,7 +18,7 @@
  * External dependencies
  */
 import axios from 'axios';
-import { createSolidFromString } from '@web-stories-wp/patterns';
+import { createSolidFromString } from '@googleforcreators/patterns';
 
 export const fetchStories = async (config, { page, status }) => {
   const { data } = await axios({
@@ -75,7 +75,7 @@ export const createStoryFromTemplate = async (config, template) => {
   const { createdBy, pages, version, colors } = template;
   // eslint-disable-next-line import/no-extraneous-dependencies
   const { getStoryPropsToSave } = await import(
-    /* webpackChunkName: "chunk-getStoryPropsToSave" */ '@web-stories-wp/story-editor'
+    /* webpackChunkName: "chunk-getStoryPropsToSave" */ '@googleforcreators/story-editor'
   );
   const storyPropsToSave = await getStoryPropsToSave({
     story: {

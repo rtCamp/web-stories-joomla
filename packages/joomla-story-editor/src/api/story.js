@@ -17,12 +17,29 @@
  * External dependencies
  */
 import axios from 'axios';
-/**
- * Internal dependencies
- */
-import { getStorySaveData } from './utils/getStorySaveData';
+import { DATA_VERSION } from '@googleforcreators/migration';
+
 export const saveStoryById = async (config, story) => {
-  const storySaveData = getStorySaveData(story);
+  const storySaveData = {
+    storyId,
+    title: {
+      raw: title,
+    },
+    excerpt: {
+      raw: excerpt,
+    },
+    storyData: {
+      version: DATA_VERSION,
+      pages,
+      autoAdvance,
+      defaultPageDuration,
+      currentStoryStyles,
+      backgroundAudio,
+    },
+    author: author?.id,
+    stylePresets: globalStoryStyles,
+    ...rest,
+  };
   const { storyId } = storySaveData;
   const { data } = await axios({
     method: 'POST',
@@ -33,14 +50,14 @@ export const saveStoryById = async (config, story) => {
     data: {
       id: storyId,
       markup: story?.content,
-      post_content_filtered: storySaveData?.story_data,
+      postContentFiltered: storySaveData?.story_data,
       title: story?.title,
-      created_by: config.userId,
-      post_date: new Date(story?.date)
+      createdBy: config.userId,
+      postDate: new Date(story?.date)
         .toISOString()
         .slice(0, 19)
         .replace('T', ' '),
-      modified_date: new Date(story?.date)
+      modifiedDate: new Date(story?.date)
         .toISOString()
         .slice(0, 19)
         .replace('T', ' '),
