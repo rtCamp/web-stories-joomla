@@ -109,25 +109,6 @@
     "lint:js:report": "eslint --output-file build/lint-js-report.json --format json .",
     "lint:md": "markdownlint ."
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged --relative"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "stylelint --fix --allow-empty-input"
-    ],
-    "*.json": [
-      "prettier --write"
-    ],
-    "*.css": "stylelint --fix --allow-empty-input",
-    "*.md": [
-      "eslint --fix",
-      "markdownlint -f"
-    ]
-  },
   "changelog": {
     "labels": {
       "Type: Enhancement": "🚀 Features",
