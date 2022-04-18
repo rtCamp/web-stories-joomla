@@ -11,23 +11,17 @@
     "main": "./src/index.js",
     "type": "module",
     "dependencies": {
-        "@testing-library/react-hooks": "^7.0.2",
-        "@web-stories-wp/dashboard": "*",
-        "@web-stories-wp/design-system": "*",
-        "@web-stories-wp/i18n":"*",
-        "@web-stories-wp/patterns":"*",
-        "@web-stories-wp/react": "*",
-        "@web-stories-wp/tracking": "*",
+        "@googleforcreators/dashboard": "^0.1.202204141511",
+        "@googleforcreators/design-system": "^0.1.202204141511",
+        "@googleforcreators/element-library": "^0.1.202204141511",
+        "@googleforcreators/i18n": "^0.1.202204141511",
+        "@googleforcreators/react": "^0.1.202204141511",
+        "@googleforcreators/tracking": "^0.1.202204141511",
         "axios": "^0.24.0",
         "prop-types": "^15.7.2",
         "styled-components": "^5.3.3"
     },
     "devDependencies": {
-      "@storybook/addon-actions": "^6.3.6",
-      "@storybook/addon-knobs": "^6.3.0",
-      "@testing-library/react": "^12.1.2",
-      "@testing-library/react-hooks": "^7.0.2",
-      "@testing-library/user-event": "^13.3.0"
     }
   }
   
