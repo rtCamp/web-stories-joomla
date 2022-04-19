@@ -15,7 +15,7 @@
  */
 export async function getFonts(params) {
   let { default: fonts } = await import(
-    /* webpackChunkName: "chunk-fonts" */ '@web-stories-wp/fonts/src/fonts.json'
+    /* webpackChunkName: "chunk-fonts" */ '@googleforcreators/fonts/fonts.json'
   );
 
   fonts = fonts.map((font) => ({

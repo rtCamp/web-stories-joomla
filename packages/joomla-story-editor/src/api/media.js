@@ -64,7 +64,7 @@ export const uploadMedia = async (config, file, additionalData) => {
   formData.append('poster_image', posterFile);
   const response = await axios({
     method: 'POST',
-    url: '../api/index.php/v1/webstories/save_file',
+    url: config.api.saveMedia,
     data: formData,
     headers: {
       Authorization: 'Bearer ' + config.token,
@@ -72,6 +72,3 @@ export const uploadMedia = async (config, file, additionalData) => {
   });
   return response.data;
 };
-export function updateMedia(config, mediaId, data) {
-  return Promise.resolve(() => {});
-}

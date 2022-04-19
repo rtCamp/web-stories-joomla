@@ -17,9 +17,9 @@
 /**
  * External dependencies
  */
-import { render } from '@web-stories-wp/react';
-import StoryEditor, { InterfaceSkeleton } from '@web-stories-wp/story-editor';
-import { __ } from '@web-stories-wp/i18n';
+import { render } from '@googleforcreators/react';
+import { StoryEditor, InterfaceSkeleton } from '@googleforcreators/story-editor';
+import { __ } from '@googleforcreators/i18n';
 import styled from 'styled-components';
 /**
  * Internal dependencies
@@ -33,7 +33,7 @@ import { getFonts } from './api/fonts';
 const AppContainer = styled.div`
   height: 100vh;
 `;
-// @todo None of these should be required by default, https://github.com/google/web-stories-wp/pull/9569#discussion_r738458801
+// @todo None of these should be required by default, https://github.com/google/googleforcreators/pull/9569#discussion_r738458801
 function initialize(id, config) {
   const appElement = document.getElementById(id);
   render(

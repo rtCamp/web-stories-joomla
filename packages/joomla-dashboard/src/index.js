@@ -17,8 +17,8 @@
 /**
  * External dependencies
  */
-import Dashboard, { InterfaceSkeleton } from '@web-stories-wp/dashboard';
-import { render } from '@web-stories-wp/react';
+import { Dashboard, InterfaceSkeleton } from '@googleforcreators/dashboard';
+import { render } from '@googleforcreators/react';
 
 /**
  * Internal dependencies
