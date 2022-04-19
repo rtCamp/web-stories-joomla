@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+__webpack_public_path__ = "http://localhost:8888/joomla/media/com_webstories/js/";
 /**
  * External dependencies
  */
 import { render } from '@googleforcreators/react';
 import { StoryEditor, InterfaceSkeleton } from '@googleforcreators/story-editor';
 import { __ } from '@googleforcreators/i18n';
-import styled from 'styled-components';
+import { registerElementType } from '@googleforcreators/elements';
+import { elementTypes } from '@googleforcreators/element-library';
+console.log(elementTypes);
 /**
  * Internal dependencies
  */
@@ -30,15 +32,13 @@ import MediaUpload from './components/mediaUpload';
 import DocumentPane from './components/documentPane';
 import { getFonts } from './api/fonts';
 
-const AppContainer = styled.div`
-  height: 100vh;
-`;
 // @todo None of these should be required by default, https://github.com/google/googleforcreators/pull/9569#discussion_r738458801
 function initialize(id, config) {
   const appElement = document.getElementById(id);
+  elementTypes.forEach(registerElementType);
   render(
-    <AppContainer>
-      <StoryEditor config={config}>
+    <div style={{"height":"100vh"}}>
+      <StoryEditor config={config} initialEdits={{story:{}}}>
         <InterfaceSkeleton
           header={<HeaderLayout />}
           inspectorTabs={{
@@ -49,7 +49,7 @@ function initialize(id, config) {
           }}
         />
       </StoryEditor>
-    </AppContainer>,
+    </div>,
     appElement
   );
 }

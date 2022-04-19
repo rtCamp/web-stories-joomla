@@ -19,6 +19,7 @@
  */
 import styled from 'styled-components';
 import { HeaderTitle } from '@googleforcreators/story-editor';
+import { elementTypes } from '@googleforcreators/element-library';
 
 /**
  * Internal dependencies
@@ -43,7 +44,7 @@ const Head = styled.div`
 const ButtonCell = styled.div`
   grid-area: buttons;
 `;
-
+console.log(elementTypes)
 function HeaderLayout() {
   return (
     <Background>

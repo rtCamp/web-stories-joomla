@@ -23,14 +23,12 @@ import { render } from '@googleforcreators/react';
 /**
  * Internal dependencies
  */
-import { GlobalStyle } from '../theme';
 import getApiCallbacks from './api/getApiCallbacks';
 // @todo Cleanup config and use a default configuration inside core dashboard package.
 const initialize = (id, config) => {
   const appElement = document.getElementById(id);
   render(
     <Dashboard config={config}>
-      <GlobalStyle />
       <InterfaceSkeleton />
     </Dashboard>,
     appElement
