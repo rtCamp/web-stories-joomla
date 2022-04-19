@@ -1,0 +1,27 @@
+{
+    "name": "@googleforcreators/joomla-dashboard",
+    "private": true,
+    "engines": {
+        "node": ">= 16",
+        "npm": ">= 7.3"
+    },
+    "exports": {
+        "default": "./src/index.js"
+    },
+    "main": "./src/index.js",
+    "type": "module",
+    "dependencies": {
+        "axios": "^0.26.1",
+        "prop-types": "^15.7.2",
+        "styled-components": "^5.3.3"
+    },
+    "devDependencies": {
+      "@googleforcreators/dashboard": "^0.1.202204141511",
+      "@googleforcreators/design-system": "^0.1.202204141511",
+      "@googleforcreators/element-library": "^0.1.202204141511",
+      "@googleforcreators/i18n": "^0.1.202204141511",
+      "@googleforcreators/patterns": "^0.1.202204141511",
+      "@googleforcreators/react": "^0.1.202204141511",
+      "@googleforcreators/tracking": "^0.1.202204141511"
+    }
+}
