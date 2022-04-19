@@ -341,32 +341,4 @@ const editorAndDashboard = {
   },
 };
 
-const storiesMCEButton = {
-  ...sharedConfig,
-  entry: {
-    'tinymce-button': './packages/tinymce-button/src/index.js',
-  },
-  plugins: [
-    ...sharedConfig.plugins,
-    new WebpackBar({
-      name: 'WP TinyMCE Button',
-      color: '#4deaa2',
-    }),
-  ].filter(Boolean),
-};
-
-const storiesImgareaselect = {
-  ...sharedConfig,
-  entry: {
-    imgareaselect: './packages/imgareaselect/src/index.js',
-  },
-  plugins: [
-    ...sharedConfig.plugins,
-    new WebpackBar({
-      name: 'WP ImgAreaSelect Patch',
-      color: '#7D02F1',
-    }),
-  ].filter(Boolean),
-};
-
-module.exports = [editorAndDashboard, storiesMCEButton, storiesImgareaselect];
+module.exports = [editorAndDashboard];
